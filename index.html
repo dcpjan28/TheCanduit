@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title id="docTitle">The Canduit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link id="themeFont" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-image: none;
+            --theme-font: 'Roboto Mono', monospace;
+            --theme-color: #00FFD1;
+        }
+        body {
+            font-family: var(--theme-font);
+            color: #E0E0E0;
+            background-color: #1a1a1a;
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        .theme-heading {
+            font-family: var(--theme-font);
+            color: var(--theme-color);
+        }
+        .energy-color {
+            color: #00FFD1;
+        }
+        .task-card {
+            transition: all 0.3s ease;
+        }
+        .task-card.completed {
+            opacity: 0.6;
+            transform: scale(0.98);
+        }
+        .task-button:disabled {
+            background-color: #6C757D;
+            cursor: not-allowed;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .modal.is-visible {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background-color: #2b2b2b;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal.is-visible .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .scroll-container {
+            background-color: rgba(43, 43, 43, 0.85);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: all 0.5s ease-in-out;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--theme-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .player-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--theme-color);
+            cursor: pointer;
+        }
+        .action-buttons-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 16px;
+        }
+        .action-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            line-height: 1;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .action-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .energy-summary-panel {
+            background-color: #3b3b3b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .energy-summary-item {
+            background-color: #4a4a4a;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .fullscreen-image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            cursor: pointer;
+        }
+        /* Increased z-index for the confirmation modal */
+        #confirmationModal {
+            z-index: 2000;
+        }
+        #playerPanel {
+            background-color: rgba(17, 24, 39, 0.7); /* Adjusted for transparency */
+        }
+        .task-button {
+            white-space: normal;
+            word-break: break-word;
+            text-align: center;
+            /* Make the whole button clickable */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .task-name-text {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        .highlight-tutorial {
+            border: 4px solid var(--theme-color);
+            box-shadow: 0 0 20px var(--theme-color);
+            transition: all 0.5s ease-in-out;
+        }
+        .action-icon-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .action-icon-button:hover {
+            transform: scale(1.1);
+        }
+        .task-action-container {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .theme-icon {
+            width: 150px;
+            height: 150px;
+            background-color: var(--theme-color);
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: all 0.5s ease-in-out;
+            border: 4px solid var(--theme-color);
+            position: absolute;
+            opacity: 0.2;
+            z-index: -1;
+            filter: blur(10px);
+        }
+        .theme-icon-1 {
+            top: 20%;
+            left: 5%;
+        }
+        .theme-icon-2 {
+            bottom: 20%;
+            right: 5%;
+        }
+        .theme-icon-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+        .chronicle-entry {
+            background-color: #1f2937;
+            border-left: 4px solid var(--theme-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="antialiased p-4 sm:p-8">
+
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="fixed inset-0 bg-[#0c0c0c] flex items-center justify-center p-8 z-[3000]">
+        <div class="text-center transition-opacity duration-1000 ease-in-out">
+            <h1 class="text-6xl sm:text-7xl font-bold mb-4 theme-heading">THE CANDUIT</h1>
+            <p class="max-w-2xl text-lg text-gray-300 mx-auto leading-relaxed">
+                Welcome, initiate. The Canduit is a device that connects your consciousness with a parallel dimension, transforming your daily tasks into a grand narrative. Your hard work here fuels your progress there. Await connection...
+            </p>
+            <button id="initiateButton" class="mt-8 bg-[#00FFD1] text-black font-bold py-4 px-12 rounded-full text-lg shadow-md hover:bg-opacity-80 transition-all active:scale-95 uppercase tracking-wide">
+                Initiate Canduit
+            </button>
+        </div>
+    </div>
+
+    <header class="text-center mb-10 p-4 bg-black bg-opacity-70 rounded-lg">
+        <h1 id="appTitleDisplay" class="text-3xl sm:text-4xl md:text-5xl font-black theme-heading">The Canduit</h1>
+        <p class="mt-2 text-lg sm:text-xl text-[#00FFD1]">Mastering your Skills and becoming a Master.</p>
+        <div class="mt-4 flex flex-wrap items-center justify-center space-x-4 space-y-2 relative">
+            <div>
+                <span class="text-2xl sm:text-3xl font-bold text-[#00FFD1]">Total Energy:</span>
+                <span id="totalPointsDisplay" class="ml-2 text-3xl sm:text-4xl font-extrabold energy-color">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Path of the Player Storyteller -->
+    <section class="lg:col-span-3 mb-8">
+        <div id="playerPanel" class="bg-gray-900 rounded-xl shadow-lg p-6 sm:p-8">
+            <h2 id="pathHeading" class="text-2xl sm:text-3xl font-bold theme-heading text-center">Path of the <span id="playerTitleDisplay">Player</span></h2>
+            <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">Track your journey and see your story unfold. Enter a character name and complete tasks to unlock your next chapter.</p>
+            <div class="flex flex-col items-center">
+                <div class="relative group">
+                    <img id="playerImageDisplay" src="https://placehold.co/150x150/073B4C/FFF?text=Your+Player" alt="Your Player Avatar" class="player-image mb-4">
+                    <button id="openDescriptionModal" class="absolute bottom-4 right-4 bg-[#00FFD1] text-black p-2 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95" title="Edit Description">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M12.854.146a.5.5 0 0 0-.707 0L7.427 4.81l-4.242 4.243a.5.5 0 0 0-.138.287l-.634 3.17a.5.5 0 0 0 .634.634l3.17-.634a.5.5 0 0 0 .287-.138l4.243-4.242 4.661-4.661a.5.5 0 0 0 0-.707l-2.122-2.122a.5.5 0 0 0-.707 0zM11.666 3.19l1.414 1.414-3.535 3.536-1.414-1.414 3.535-3.536z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <input type="file" id="playerImageInput" accept="image/*" class="hidden">
+                <label for="playerImageInput" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md cursor-pointer hover:bg-opacity-90 transition-all active:scale-95 mb-4">
+                    Choose Your <span id="playerTitleDisplay2">Player</span>'s Image
+                </label>
+                
+                <div class="text-center mt-2">
+                    <p class="text-lg font-bold text-gray-200">Name: <span id="characterNameDisplay" class="energy-color"></span></p>
+                </div>
+                <div class="text-center mt-2">
+                    <p class="text-lg font-bold text-gray-200">Rank: <span id="playerRankDisplay" class="energy-color">Novice</span></p>
+                </div>
+                <div class="text-center mt-2">
+                    <p class="text-lg font-bold text-gray-200">Arc Progress: <span id="arcIndicatorDisplay" class="energy-color">N/A</span></p>
+                </div>
+
+                <div id="imageGeneratorSection" class="mt-6 flex flex-col items-center hidden">
+                    <h4 class="text-md font-bold mb-2 theme-heading">Create Your <span id="playerTitleDisplay3">Player</span>'s Scene</h4>
+                    <p id="imageStatus" class="mb-4 text-sm text-gray-400">Generate a visual of your latest adventure!</p>
+                    <div class="flex space-x-4">
+                        <button id="generateImageButton" class="bg-[#0077B6] text-white font-bold py-3 px-6 rounded-full shadow-md cursor-not-allowed" disabled>Generate Player Image</button>
+                        <button id="setProfileImageButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hidden" disabled>Set as Profile Image</button>
+                    </div>
+                    <div id="imageLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                        <div class="loading-spinner mr-2"></div>
+                        Summoning your image...
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="text-md font-bold mb-2 text-gray-200 theme-heading">Known <span id="skillTitleDisplay">Skills</span>:</h4>
+                    <ul id="skillList" class="text-sm text-gray-300 space-y-1">
+                        <!-- Skills will be rendered here -->
+                    </ul>
+                </div>
+                <div class="flex space-x-4 mt-6">
+                    <button id="generateStoryButton" class="bg-gray-400 text-white font-bold py-3 px-6 rounded-full shadow-md cursor-not-allowed" disabled>Reveal Your Story</button>
+                    <button id="viewChronicleButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">View Chronicle</button>
+                </div>
+                <p id="storyStatus" class="mt-4 text-center text-sm text-gray-400">Complete 5 tasks and wait 24 hours to generate your first story segment.</p>
+                <div id="storyLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                    <div class="loading-spinner mr-2"></div>
+                    Unrolling the scroll...
+                </div>
+            </div>
+
+            <div id="originStoryContainer" class="mt-8 p-6 bg-gray-900 rounded-lg border-2 border-gray-700 hidden">
+                <h3 class="font-bold text-xl mb-4 text-center text-white theme-heading">Choose Your Origin Story</h3>
+                <p class="text-center text-gray-400 mb-6">Your name, <span id="originNameDisplay" class="font-bold"></span>, holds a legend. Which path will you choose?</p>
+                <div id="originChoicesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Origin stories will be dynamically added here -->
+                </div>
+                <div class="text-center mt-4">
+                    <button id="rerollOriginButton" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Reroll Origins</button>
+                </div>
+            </div>
+
+            <div id="storyOutput" class="mt-8 p-6 bg-gray-900 rounded-lg border-2 border-gray-700 hidden">
+                <!-- The generated story will be displayed here -->
+            </div>
+            
+            <div id="choiceSystemContainer" class="mt-8 p-6 bg-gray-900 rounded-lg border-2 border-gray-700 hidden">
+                <h3 class="font-bold text-xl mb-4 text-center text-white theme-heading">Choose Your Next Move</h3>
+                <div id="choiceButtonsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic choice buttons will be added here -->
+                </div>
+                <div id="choiceLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center justify-center">
+                    <div class="loading-spinner mr-2"></div>
+                    Unfolding the outcome...
+                </div>
+                <div id="choiceOutcomeOutput" class="mt-4 p-4 text-white hidden">
+                    <!-- The generated outcome will be displayed here -->
+                </div>
+                <div class="text-center mt-4 hidden" id="recordButtonContainer">
+                    <button id="recordButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Record Your Legend</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto scroll-container">
+        
+        <!-- Theme Icons Section -->
+        <div id="themeIconContainer" class="lg:col-span-3 mb-8 relative">
+            <div id="themeIcon1" class="theme-icon theme-icon-1"></div>
+            <div id="themeIcon2" class="theme-icon theme-icon-2 hidden sm:block"></div>
+        </div>
+
+        <!-- Daily Tasks Section -->
+        <section>
+            <div id="dailyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="dailyTasksHeading">Daily Tasks</h2>
+                    <div class="flex space-x-2">
+                        <button id="toggleCompletedDaily" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-opacity-80 transition-all">Show Completed</button>
+                    </div>
+                </div>
+                <div id="dailyTasks" class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <!-- Dynamic content or fallback message -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Weekly and Monthly Tasks Sections -->
+        <div class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <section>
+                <div id="weeklyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="weeklyTasksHeading">Weekly Tasks</h2>
+                        <div class="flex space-x-2">
+                            <button id="toggleCompletedWeekly" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-opacity-80 transition-all">Show Completed</button>
+                        </div>
+                    </div>
+                    <div id="weeklyTasks" class="space-y-4 flex-grow">
+                        <!-- Dynamic content or fallback message -->
+                    </div>
+                </div>
+            </section>
+            
+            <section>
+                <div id="monthlyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="monthlyTasksHeading">Monthly Tasks</h2>
+                        <div class="flex space-x-2">
+                            <button id="toggleCompletedMonthly" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-opacity-80 transition-all">Show Completed</button>
+                        </div>
+                    </div>
+                    <div id="monthlyTasks" class="space-y-4 flex-grow">
+                        <!-- Dynamic content or fallback message -->
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+    </main>
+
+    <!-- Skill Scrolls Section -->
+    <section id="skillsPanel" class="mt-8 lg:col-span-3">
+        <div class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="skillSectionHeading" class="text-2xl sm:text-3xl font-bold theme-heading">Skills Scrolls</h2>
+                
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="p-4 bg-gray-900 rounded-lg">
+                    <h3 id="createSkillHeading" class="text-xl font-bold theme-heading mb-4">Create New Skill</h3>
+                    <div id="missionEnergySummary" class="bg-gray-800 p-3 rounded-lg mb-4 text-gray-200">
+                        <h4 class="text-md font-bold mb-2">Potential Energy Gains</h4>
+                        <div id="missionEnergySummaryContent" class="grid grid-cols-1 lg:grid-cols-3 gap-2 text-sm text-left">
+                            <!-- Mission energy stats will be rendered here -->
+                        </div>
+                    </div>
+                    <input type="text" id="newRewardName" placeholder="New Skill to Unlock" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none mb-2 bg-gray-800 text-white">
+                    <div id="newSkillCostInputs" class="grid grid-cols-2 gap-2 mb-2">
+                        <!-- Energy costs inputs will be rendered here -->
+                    </div>
+                    <button id="addReward" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Add Skill</button>
+                </div>
+                <div class="p-4 bg-gray-900 rounded-lg">
+                    <h3 id="availableScrollsHeading" class="text-xl font-bold theme-heading mb-4">Available Scrolls</h3>
+                    <div id="currentEnergySummary" class="bg-gray-800 p-3 rounded-lg mb-4 text-gray-200">
+                        <h4 class="md font-bold mb-2">Current Energy</h4>
+                        <div id="currentEnergySummaryContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-left">
+                            <!-- Current energy stats will be rendered here -->
+                        </div>
+                    </div>
+                    <ul id="rewardsList" class="space-y-3">
+                        <!-- Rewards will be rendered here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating action buttons at the bottom right -->
+    <div class="action-buttons-container">
+        <!-- Add Task -->
+        <button id="openManualMissionModal" class="action-button bg-[#0077B6] text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="black" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+        </button>
+        <!-- AI Mission -->
+        <button id="openAIMissionModal" class="action-button bg-[#00FFD1] text-black">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+        </button>
+        <!-- Theme Customization -->
+        <button id="openCustomizationFromMain" class="action-button bg-orange-400 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette">
+                <circle cx="13.5" cy="6.5" r=".5" fill="black"/>
+                <circle cx="17.5" cy="10.5" r=".5" fill="black"/>
+                <circle cx="8.5" cy="7.5" r=".5" fill="black"/>
+                <path d="M4 13s2-2 4-2 4 2 8 2s4-2 4-2"/>
+                <path d="M20 16V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14v2a2 2 0 0 1-2 2h-6"/>
+            </svg>
+        </button>
+        <!-- Master Reset -->
+        <button id="masterResetButton" class="action-button bg-[#FF0055] text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="black" viewBox="0 0 16 16">
+                <path d="M8.982 1.566c-.386-.198-.824-.108-.638.501L1.722 3.834.98 6.705c-.372-.345-.118-.946.336-.913l4.582.658L8.275.483c.197-.408.799-.408.995 0l2.31 4.767 4.582-.658c.454-.033.708.568.336.913l-3.232 3.55 1.722 3.834c.186.393-.252.699-.638.501L8 13.528l-4.388 1.915z"/>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Tutorial Modal -->
+    <div id="tutorialModal" class="modal">
+        <div class="modal-content max-w-xl text-white">
+            <h3 id="tutorialTitle" class="text-2xl font-bold mb-4 text-center theme-heading">Tutorial</h3>
+            <p id="tutorialText" class="text-sm text-gray-300 mb-4"></p>
+            <div class="flex justify-between">
+                <button id="prevTutorial" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-all">Previous</button>
+                <button id="nextTutorial" class="bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-80 transition-all active:scale-95">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content text-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold theme-heading">Message</h3>
+                <button id="closeMessage" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+            </div>
+            <p id="messageText" class="text-center text-gray-300 mb-6"></p>
+            <button onclick="hideModal('messageModal');" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">OK</button>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content text-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="confirmationTitle" class="text-2xl font-bold theme-heading">Confirm Action</h3>
+                <button onclick="hideModal('confirmationModal');" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+            </div>
+            <p id="confirmationMessage" class="text-center text-gray-300 mb-6"></p>
+            <div id="skillCostDisplay" class="text-sm text-gray-300 mb-4"></div>
+            <div class="flex space-x-4 justify-center">
+                <button id="confirmAction" class="bg-[#FF0055] text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Confirm</button>
+                <button id="cancelAction" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-all">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Modal for full-screen view -->
+    <div id="imageModal" class="fullscreen-image-modal">
+        <div class="relative max-w-[90%] max-h-[90%]">
+            <img id="enlargedImage" class="fullscreen-image" src="" alt="Enlarged Player Image">
+            <button id="saveImageButton" class="absolute bottom-4 right-4 bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save Image</button>
+        </div>
+        <button id="closeImageModal" class="absolute top-4 right-4 text-gray-200 text-4xl hover:text-red-500 font-bold">&times;</button>
+    </div>
+    
+    <!-- Character Description Modal -->
+    <div id="descriptionModal" class="modal">
+        <div class="modal-content text-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold theme-heading">Edit Character Description</h3>
+                <button id="closeDescriptionModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+            </div>
+            <textarea id="characterDescriptionTextarea" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="5" placeholder="Describe your character and their personality to bring them to life..."></textarea>
+            <div class="flex space-x-4 justify-center mt-4">
+                <button id="saveDescriptionButton" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save</button>
+                <button id="cancelDescriptionButton" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-500 transition-all active:scale-95">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Customization Modal -->
+    <div id="customizationModal" class="modal">
+        <div class="modal-content text-white max-w-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold theme-heading">Customize Your Experience</h3>
+                <button id="closeCustomizationModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+            </div>
+            <div class="border-b border-gray-700 mb-4">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button id="themeGeneratorTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">AI Generator</button>
+                    <button id="manualCustomizationTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">Manual</button>
+                </nav>
+            </div>
+            <div id="themeGeneratorContent">
+                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">Enter the name of a fictional universe or theme you love, and I'll establish a link to that world. For example: "a fantasy realm," "a futuristic city," or "a detective story."</p>
+                <div class="flex flex-col items-center space-y-4">
+                    <input type="text" id="universeInput" placeholder="e.g. fantasy realm, futuristic city, etc." class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
+                    <button id="generateThemeButton" class="w-full bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Generate Theme</button>
+                    <div id="themeLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                        <div class="loading-spinner mr-2"></div>
+                        Unleashing the creative spirit...
+                    </div>
+                </div>
+            </div>
+            <div id="customizationContent" class="hidden">
+                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">You can manually edit the theme here. Be sure to save your changes to apply them. **The values you provide here are essential for the AI to generate accurate stories about your character. For the most immersive experience, ensure your details are as specific as possible.**</p>
+                <div class="space-y-4 overflow-y-auto max-h-96 pr-4">
+                    <div class="flex items-center space-x-2">
+                        <label for="customAppTitle" class="text-sm font-bold w-1/4">App Name:</label>
+                        <input type="text" id="customAppTitle" placeholder="e.g., The Canduit" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customPlayerTitle" class="text-sm font-bold w-1/4">Player Title:</label>
+                        <input type="text" id="customPlayerTitle" placeholder="e.g., Player, Hero, Shinobi" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customMasterTitle" class="text-sm font-bold w-1/4">AI Title:</label>
+                        <input type="text" id="customMasterTitle" placeholder="e.g., Master, Sensei, Oracle" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customSkillSectionTitle" class="text-sm font-bold w-1/4">Skills Title:</label>
+                        <input type="text" id="customSkillSectionTitle" placeholder="e.g., Skills, Jutsu, Quirks" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customTaskTitle" class="text-sm font-bold w-1/4">Task Title:</label>
+                        <input type="text" id="customTaskTitle" placeholder="e.g., Task, Mission, Quest" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customGroupType" class="text-sm font-bold w-1/4">Group Type:</label>
+                        <input type="text" id="customGroupType" placeholder="e.g., Clan, House, Faction" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customSpecialityTitle" class="text-sm font-bold w-1/4">Specialty Title:</label>
+                        <input type="text" id="customSpecialityTitle" placeholder="e.g., Element, Discipline, Hobby" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customRanks" class="text-sm font-bold w-1/4">Ranks (comma-separated):</label>
+                        <input type="text" id="customRanks" placeholder="e.g., Novice, Apprentice, Journeyman, Master" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customEnergyTypes" class="text-sm font-bold w-1/4">Energy Types (comma-separated):</label>
+                        <input type="text" id="customEnergyTypes" placeholder="e.g., Energy 1, Stamina, Chakra, Mana" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customHomeNames" class="text-sm font-bold w-1/4">Homes (comma-separated):</label>
+                        <input type="text" id="customHomeNames" placeholder="e.g., Hometown, The City, The Mountains" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customBackgroundUrl" class="text-sm font-bold w-1/4">Background Image URL:</label>
+                        <input type="text" id="customBackgroundUrl" placeholder="URL of your world's landscape" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customThemeIconUrl" class="text-sm font-bold w-1/4">Theme Icon URL:</label>
+                        <input type="text" id="customThemeIconUrl" placeholder="URL for theme icons" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="customThemeColor" class="text-sm font-bold w-1/4">Theme Color (hex):</label>
+                        <input type="text" id="customThemeColor" placeholder="e.g., #00FFD1" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                    </div>
+                </div>
+                <div class="flex space-x-4 justify-center mt-4">
+                    <button id="saveCustomizationButton" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save Theme</button>
+                    <button id="cancelCustomizationButton" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-500 transition-all active:scale-95">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission Management Modal -->
+    <div id="missionModal" class="modal">
+        <div class="modal-content max-w-xl text-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold theme-heading" id="missionModalTitle">Manage Missions</h3>
+                <button id="closeMissionModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+            </div>
+
+            <div class="border-b border-gray-700 mb-4">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button id="aiTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">AI Master</button>
+                    <button id="manualTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">Add Mission</button>
+                </nav>
+            </div>
+            
+            <div id="aiMissionContent">
+                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">What are your goals, dreams, and aspirations? Tell the Master, and a special mission will be generated to guide you.</p>
+                <div class="flex flex-col items-center space-y-4">
+                    <textarea id="goalInput" class="w-full max-w-xl p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="3" placeholder="Example: Become a debt-free homeowner"></textarea>
+                    <button id="generateMissionsButton" class="w-full max-w-xl bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Generate Tasks Plan</button>
+                    <div id="loadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                        <div class="loading-spinner mr-2"></div>
+                        Generating your tasks...
+                    </div>
+                </div>
+            </div>
+
+            <div id="manualMissionContent" class="hidden">
+                <div class="flex flex-col items-center space-y-4">
+                    <input type="text" id="manualMissionName" placeholder="Task Name" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
+                    <textarea id="manualMissionDescription" placeholder="Short Task Description" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="2"></textarea>
+                    <div class="w-full grid grid-cols-2 gap-4">
+                        <select id="manualMissionFrequency" class="w-full p-3 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] bg-gray-900 text-white">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                        <select id="manualMissionFocus" class="w-full p-3 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] bg-gray-900 text-white">
+                            <option value="Energy 1">Energy 1</option>
+                            <option value="Energy 2">Energy 2</option>
+                            <option value="Energy 3">Energy 3</option>
+                            <option value="Energy 4">Energy 4</option>
+                            <option value="Energy 5">Energy 5</option>
+                           </select>
+                    </div>
+                    <input type="number" id="manualMissionPoints" placeholder="Energy Points" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
+                    <button id="addManualMissionButton" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Add Task</button>
+                   </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Naming Modal -->
+    <div id="namingModal" class="modal">
+        <div class="modal-content text-white max-w-xl">
+            <h3 class="text-2xl font-bold mb-4 text-center theme-heading">Begin Your Journey</h3>
+            <p class="text-center text-gray-300 mb-6">Enter your name, pronouns, and a brief description to create your unique Player.</p>
+            
+            <!-- Input section for name and pronouns -->
+            <div class="flex flex-col items-center space-y-4 mb-6">
+                <input type="text" id="startupNameInput" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" placeholder="Enter your Player name">
+                <div class="w-full p-4 rounded-lg border-2 border-gray-700 bg-gray-900">
+                    <label for="pronounSelect" class="block text-center text-gray-300 mb-2">Select Your Pronouns</label>
+                    <select id="pronounSelect" class="w-full p-2 rounded-md bg-gray-800 text-white focus:outline-none focus:border-[#00FFD1]">
+                        <option value="he/him">He/Him</option>
+                        <option value="she/her">She/Her</option>
+                        <option value="they/them">They/Them</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Optional: Upload background image -->
+            <div class="w-full p-4 mb-4 rounded-lg border-2 border-gray-700 bg-gray-900 text-center">
+                <p class="text-sm font-bold mb-2">Project a new reality. What does your world look like?</p>
+                <label for="modalBackgroundUploadInput" class="bg-gray-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700 transition-all active:scale-95 shadow-md">
+                    <span class="text-base">Upload Image</span>
+                </label>
+                <input type="file" id="modalBackgroundUploadInput" class="hidden" accept="image/*">
+            </div>
+
+            <!-- Optional: Character description -->
+            <div class="w-full p-4 mb-4 rounded-lg border-2 border-gray-700 bg-gray-900 text-center">
+                <p class="text-sm font-bold mb-2">Add a character description:</p>
+                <textarea id="modalCharacterDescriptionTextarea" class="w-full p-2 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-800 text-white" rows="3" placeholder="Describe your character and their personality..."></textarea>
+            </div>
+            
+            <button id="submitNameButton" class="w-full bg-[#FF0055] text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Begin Your Journey</button>
+        </div>
+    </div>
+
+    <!-- Chronicle Modal - Now a dedicated modal -->
+    <div id="chronicleModal" class="modal">
+        <div class="modal-content text-white max-w-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold theme-heading">Your Chronicle</h3>
+                <button id="closeChronicleModalButton" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+            </div>
+            <div id="chronicleContent" class="space-y-6 overflow-y-auto max-h-[70vh]">
+                <!-- The full chronicle will be displayed here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const DAILY_RESET_HOUR = 2;
+        const ARC_LENGTH = 10;
+        const MIN_MISSIONS_FOR_STORY = 5;
+
+        const focusColors = {
+            'Energy 1': '#FF0055',
+            'Energy 2': '#00FFD1',
+            'Energy 3': '#4CAF50',
+            'Energy 4': '#FFD166',
+            'Energy 5': '#6A0572'
+        };
+        
+        const defaultTasks = [
+            { name: 'Meditate for 10 minutes', description: 'Center yourself and focus on your breath.', frequency: 'daily', focus: 'Energy 1', points: 10 },
+            { name: 'Read a chapter of a book', description: 'Expand your knowledge and explore new worlds.', frequency: 'daily', focus: 'Energy 2', points: 10 },
+            { name: 'Complete your daily workout', description: 'Strengthen your body and mind.', frequency: 'daily', focus: 'Energy 3', points: 10 },
+            { name: 'Plan your day', description: 'Organize your schedule and set your intentions.', frequency: 'daily', focus: 'Energy 4', points: 10 },
+            { name: 'Write in your journal', description: 'Reflect on your thoughts and emotions.', frequency: 'daily', focus: 'Energy 5', points: 10 },
+            { name: 'Clean your living space', description: 'Create a clean and peaceful environment.', frequency: 'weekly', focus: 'Energy 1', points: 50 },
+            { name: 'Learn a new recipe', description: 'Experiment with new flavors and culinary skills.', frequency: 'weekly', focus: 'Energy 2', points: 50 },
+            { name: 'Explore a new trail or park', description: 'Connect with nature and discover new places.', frequency: 'weekly', focus: 'Energy 3', points: 50 },
+            { name: 'Review your weekly goals', description: 'Track your progress and adjust your plans.', frequency: 'weekly', focus: 'Energy 4', points: 50 },
+            { name: 'Practice a new creative hobby', description: 'Express yourself through art, music, or writing.', frequency: 'weekly', focus: 'Energy 5', points: 50 },
+            { name: 'Declutter your digital life', description: 'Organize files and unsubscribe from unnecessary emails.', frequency: 'monthly', focus: 'Energy 1', points: 200 },
+            { name: 'Start a new online course', description: 'Commit to long-term learning and personal growth.', frequency: 'monthly', focus: 'Energy 2', points: 200 },
+            { name: 'Take a weekend trip', description: 'Rest, recharge, and gain new perspectives.', frequency: 'monthly', focus: 'Energy 3', points: 200 },
+            { name: 'Create a budget and financial plan', description: 'Manage your finances and plan for the future.', frequency: 'monthly', focus: 'Energy 4', points: 200 },
+            { name: 'Complete a large creative project', description: 'Bring a major idea to life.', frequency: 'monthly', focus: 'Energy 5', points: 200 }
+        ];
+        
+        const defaultCustomizableTerms = {
+            appTitle: 'The Canduit',
+            playerTitle: 'Player',
+            masterTitle: 'Master',
+            skillSectionTitle: 'Skills',
+            createSkillHeading: 'Create New Skill',
+            availableScrollsHeading: 'Available Scrolls',
+            taskTitle: 'Task',
+            ranks: ['Novice', 'Apprentice', 'Journeyman', 'Master'],
+            energyTypes: ['Energy 1', 'Energy 2', 'Energy 3', 'Energy 4', 'Energy 5'],
+            homeNames: ['Hometown', 'The City', 'The Mountains', 'The Coast', 'The Kingdom'],
+            groupType: 'Clan',
+            specialityTitle: 'Specialty',
+            universe: 'Fantasy',
+            backgroundUrl: '',
+            themeColor: '#00FFD1',
+            themeIconUrl: '',
+        };
+
+        const fontMap = {
+            'Fantasy': { name: 'Metal Mania', url: 'https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap' },
+            'Cyberpunk': { name: 'Share Tech Mono', url: 'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap' },
+            'Sci-Fi': { name: 'Orbitron', url: 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap' },
+            'Medieval': { name: 'MedievalSharp', url: 'https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap' },
+            'Sitcom': { name: 'Comic Neue', url: 'https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap' },
+            'Anime': { name: 'Press Start 2P', url: 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap' },
+            'Horror': { name: 'Creepster', url: 'https://fonts.googleapis.com/css2?family=Creepster&display=swap' },
+            'Thriller': { name: 'Cutive Mono', url: 'https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap' }
+        };
+        
+        let customizableTerms;
+        let energy;
+        let lifetimeEnergy;
+        let completedTasks;
+        let rewards;
+        let missionsCompletedSinceLastStory;
+        let lastStoryTime;
+        let characterName;
+        let playerPronouns;
+        let playerChronicle;
+        let playerImage;
+        let characterDescription;
+        let allTasks;
+        let lastDailyReset;
+        let playerRank;
+        let isPromotionArc;
+        let knownSkills;
+        let characterBio;
+        let retiredChronicles;
+        let lastImageTime;
+        let themeChosen;
+        let currentArc;
+        let currentChapterInArc;
+        let temporaryStorySegment = null;
+        let temporaryChoice = null;
+        let temporaryOutcome = null;
+        let generatedImageUrl;
+        let showCompletedDaily = false;
+        let showCompletedWeekly = false;
+        let showCompletedMonthly = false;
+
+        // Global functions
+        const showModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.add('is-visible');
+            }
+        };
+        
+        const hideModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.remove('is-visible');
+            }
+        };
+
+        const showMessageModal = (message) => {
+            document.getElementById('messageText').textContent = message;
+            showModal('messageModal');
+        };
+
+        const showConfirmationModal = (title, message, cost, onConfirm) => {
+            document.getElementById('confirmationTitle').textContent = title;
+            document.getElementById('confirmationMessage').textContent = message;
+            
+            const costDisplay = document.getElementById('skillCostDisplay');
+            if (cost) {
+                let costHtml = 'Cost: ';
+                let first = true;
+                for (const type of customizableTerms.energyTypes) {
+                    if (cost[type] > 0) {
+                        if (!first) costHtml += ', ';
+                        costHtml += `<span class="font-bold text-white" style="color: ${focusColors[type]};">${cost[type]} ${type}</span>`;
+                        first = false;
+                    }
+                }
+                costDisplay.innerHTML = costHtml;
+                costDisplay.classList.remove('hidden');
+            } else {
+                costDisplay.classList.add('hidden');
+            }
+
+            const confirmButton = document.getElementById('confirmAction');
+            const cancelButton = document.getElementById('cancelAction');
+
+            confirmButton.onclick = () => {
+                onConfirm();
+                hideModal('confirmationModal');
+            };
+
+            cancelButton.onclick = () => {
+                hideModal('confirmationModal');
+            };
+
+            showModal('confirmationModal');
+        };
+
+        const updatePointsDisplay = () => {
+            const totalPointsDisplay = document.getElementById('totalPointsDisplay');
+            if(totalPointsDisplay) {
+                const totalEnergy = Object.values(energy).reduce((sum, current) => sum + current, 0);
+                totalPointsDisplay.textContent = totalEnergy;
+            }
+        };
+        
+        const applyThemeIcons = () => {
+            const themeIconsEls = [document.getElementById('themeIcon1'), document.getElementById('themeIcon2')];
+            if (customizableTerms.themeIconUrl) {
+                themeIconsEls.forEach(icon => {
+                    if (icon) icon.innerHTML = `<img src="${customizableTerms.themeIconUrl}" class="theme-icon-image" alt="Theme Icon">`;
+                });
+            } else {
+                 themeIconsEls.forEach(icon => {
+                     if (icon) icon.innerHTML = '';
+                 });
+            }
+        };
+
+        const updateStoryStatus = () => {
+            const today = new Date().toDateString();
+            const lastStoryDate = new Date(lastStoryTime).toDateString();
+            
+            const missionsNeeded = MIN_MISSIONS_FOR_STORY - missionsCompletedSinceLastStory;
+            let canGenerate = missionsCompletedSinceLastStory >= MIN_MISSIONS_FOR_STORY && today !== lastStoryDate;
+
+            let statusMessage = '';
+            
+            if (today === lastStoryDate) {
+                statusMessage = 'You have already generated a story today. Your next chapter awaits tomorrow.';
+                canGenerate = false;
+            } else if (!characterName) {
+                statusMessage = `Please enter your ${customizableTerms.playerTitle} name to start your journey.`;
+                canGenerate = false;
+            } else if (playerChronicle.length === 0) {
+                statusMessage = `Choose your origin story to begin.`;
+                canGenerate = true;
+            } else if (missionsNeeded > 0) {
+                statusMessage = `Complete ${missionsNeeded} more tasks to unlock your story.`;
+                canGenerate = false;
+            } else {
+                statusMessage = 'You are ready to reveal your next story chapter!';
+                canGenerate = true;
+            }
+            
+            const generateStoryButton = document.getElementById('generateStoryButton');
+            if (generateStoryButton) {
+                generateStoryButton.disabled = !canGenerate;
+                generateStoryButton.classList.toggle('bg-gray-400', !canGenerate);
+                generateStoryButton.classList.toggle('cursor-not-allowed', !canGenerate);
+                generateStoryButton.classList.toggle('bg-[--theme-color]', canGenerate);
+            }
+            
+            const storyStatus = document.getElementById('storyStatus');
+            if (storyStatus) storyStatus.textContent = statusMessage;
+            
+            const viewChronicleButton = document.getElementById('viewChronicleButton');
+            if (viewChronicleButton) {
+                viewChronicleButton.disabled = playerChronicle.length === 0;
+                viewChronicleButton.classList.toggle('opacity-50', playerChronicle.length === 0);
+                viewChronicleButton.classList.toggle('cursor-not-allowed', playerChronicle.length === 0);
+            }
+        };
+
+        const updateRankAndSkillDisplay = () => {
+            const playerRankDisplay = document.getElementById('playerRankDisplay');
+            if (playerRankDisplay) {
+                playerRankDisplay.textContent = playerRank;
+            }
+            const skillListEl = document.getElementById('skillList');
+            if (skillListEl) {
+                skillListEl.innerHTML = '';
+                if (knownSkills.length === 0) {
+                    skillListEl.innerHTML = `<li class="text-gray-400">No ${customizableTerms.skillSectionTitle} learned yet.</li>`;
+                } else {
+                    knownSkills.forEach(skill => {
+                        const li = document.createElement('li');
+                        li.textContent = `• ${skill}`;
+                        skillListEl.appendChild(li);
+                    });
+                }
+            }
+            const arcIndicatorDisplay = document.getElementById('arcIndicatorDisplay');
+            if (arcIndicatorDisplay) {
+                arcIndicatorDisplay.textContent = `Arc ${currentArc}, Chapter ${currentChapterInArc}/${ARC_LENGTH}`;
+            }
+        };
+
+        const updateImageGeneratorStatus = () => {
+            const today = new Date().toDateString();
+            const lastStoryDate = new Date(lastStoryTime).toDateString();
+            const lastImageDate = new Date(lastImageTime).toDateString();
+            const hasStory = playerChronicle.length > 0;
+            const hasRecordedStoryToday = lastStoryTime && (new Date(lastStoryTime).toDateString() === today);
+            
+            const canGenerateImage = hasStory && hasRecordedStoryToday && (lastImageDate !== today);
+
+            const imageGeneratorSection = document.getElementById('imageGeneratorSection');
+            const generateImageButton = document.getElementById('generateImageButton');
+            const imageStatus = document.getElementById('imageStatus');
+            const storyStatus = document.getElementById('storyStatus');
+
+            if (imageGeneratorSection) {
+                imageGeneratorSection.classList.toggle('hidden', !hasStory);
+            }
+
+            if (generateImageButton) {
+                generateImageButton.disabled = !canGenerateImage;
+                generateImageButton.classList.toggle('bg-gray-400', !canGenerateImage);
+                generateImageButton.classList.toggle('cursor-not-allowed', !canGenerateImage);
+                generateImageButton.classList.toggle('bg-[#0077B6]', canGenerateImage);
+            }
+            
+            if (imageStatus) {
+                if (!hasStory) {
+                    imageStatus.textContent = 'Generate your first story to unlock image generation.';
+                } else if (!hasRecordedStoryToday) {
+                    imageStatus.textContent = 'Record a story today to enable image generation.';
+                } else if (lastImageDate === today) {
+                    imageStatus.textContent = 'You have already generated an image today. Come back tomorrow!';
+                } else {
+                    imageStatus.textContent = 'You are ready to generate a new image!';
+                }
+            }
+        };
+
+        const checkPromotion = () => {
+            let nextRankThreshold;
+            const RANK_THRESHOLDS = {
+                [customizableTerms.ranks[1]]: 500,
+                [customizableTerms.ranks[2]]: 2000,
+                [customizableTerms.ranks[3]]: 5000
+            };
+            const rankOrder = customizableTerms.ranks;
+            const currentRankIndex = rankOrder.indexOf(playerRank);
+            if (currentRankIndex < rankOrder.length - 1) {
+                const nextRank = rankOrder[currentRankIndex + 1];
+                nextRankThreshold = RANK_THRESHOLDS[nextRank];
+            } else {
+                nextRankThreshold = Infinity;
+            }
+
+            if (!isPromotionArc && lifetimeEnergy >= nextRankThreshold) {
+                isPromotionArc = true;
+                saveState();
+            }
+        };
+
+        const checkDailyReset = () => {
+            const now = new Date();
+            const lastResetDate = new Date(lastDailyReset);
+            const today = now.toDateString();
+            const resetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), DAILY_RESET_HOUR, 0, 0);
+
+            if (lastResetDate.toDateString() !== today && now >= resetTime) {
+                allTasks.filter(t => t.frequency === 'daily').forEach(task => {
+                    delete completedTasks[task.name];
+                });
+                lastDailyReset = now.toISOString();
+                saveState();
+                renderTasks('daily');
+            }
+        };
+
+        const renderNewSkillCostInputs = () => {
+            const container = document.getElementById('newSkillCostInputs');
+            if (container) {
+                container.innerHTML = customizableTerms.energyTypes.map(type => `
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-bold w-1/3 text-right" style="color: ${focusColors[type]};">${type}:</label>
+                        <input type="number" id="newReward${type.replace(/\s/g, '')}" placeholder="cost" class="p-1 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none flex-grow bg-gray-900 text-white w-2/3">
+                    </div>
+                `).join('');
+            }
+        };
+
+        const renderEnergySummary = () => {
+            const missionEnergySummaryContent = document.getElementById('missionEnergySummaryContent');
+            if (missionEnergySummaryContent) {
+                missionEnergySummaryContent.innerHTML = '';
+                const dailyGains = {};
+                const weeklyGains = {};
+                const monthlyGains = {};
+                customizableTerms.energyTypes.forEach(type => {
+                    dailyGains[type] = 0;
+                    weeklyGains[type] = 0;
+                    monthlyGains[type] = 0;
+                });
+                
+                allTasks.forEach(task => {
+                    if (task.frequency === 'daily') dailyGains[task.focus] += task.points;
+                    if (task.frequency === 'weekly') weeklyGains[task.focus] += task.points;
+                    if (task.frequency === 'monthly') monthlyGains[task.focus] += task.points;
+                });
+
+                const renderGains = (gains, label) => {
+                    const total = Object.values(gains).reduce((sum, value) => sum + value, 0);
+                    const item = document.createElement('div');
+                    item.className = 'energy-summary-item bg-gray-800 p-2 rounded-md';
+                    item.innerHTML = `<p class="capitalize font-bold text-sm">${label} Gains: <span class="text-sm font-bold">${total}</span></p>`;
+                    Object.entries(gains).forEach(([type, value]) => {
+                        if (value > 0) {
+                            item.innerHTML += `<p class="text-xs text-gray-400 capitalize ml-2">${type}: +${value}</p>`;
+                        }
+                    });
+                    missionEnergySummaryContent.appendChild(item);
+                };
+                
+                renderGains(dailyGains, 'Daily');
+                renderGains(weeklyGains, 'Weekly');
+                renderGains(monthlyGains, 'Monthly');
+            }
+
+            const currentEnergySummaryContent = document.getElementById('currentEnergySummaryContent');
+            if (currentEnergySummaryContent) {
+                currentEnergySummaryContent.innerHTML = '';
+                for (const type of customizableTerms.energyTypes) {
+                    const item = document.createElement('div');
+                    item.className = 'energy-summary-item bg-gray-800 p-2 rounded-md';
+                    item.innerHTML = `
+                        <p class="capitalize font-bold text-sm">${type}</p>
+                        <p>Current: <span class="font-bold">${energy[type]}</span></p>
+                    `;
+                    currentEnergySummaryContent.appendChild(item);
+                }
+            }
+        };
+
+        const renderTasks = (frequency) => {
+            const container = document.getElementById(`${frequency}Tasks`);
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const tasksToRender = allTasks.filter(task => task.frequency === frequency);
+            if (tasksToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 p-6 border border-gray-700 rounded-lg">
+                        <p class="mb-4">No tasks found for this period. How about you create some?</p>
+                        <button onclick="showModal('missionModal');" class="bg-[#00FFD1] text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-opacity-90 transition-all active:scale-95">Use AI Mission Maker</button>
+                    </div>
+                `;
+            } else {
+                let showCompleted;
+                if (frequency === 'daily') showCompleted = showCompletedDaily;
+                if (frequency === 'weekly') showCompleted = showCompletedWeekly;
+                if (frequency === 'monthly') showCompleted = showCompletedMonthly;
+
+                tasksToRender.forEach(task => {
+                    const isCompleted = completedTasks[task.name];
+                    
+                    if (!isCompleted || showCompleted) {
+                        const card = document.createElement('div');
+                        card.className = `task-card p-4 rounded-lg shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 ${isCompleted ? 'bg-gray-800 completed' : 'bg-gray-900'} text-white`;
+                        card.style.borderLeft = `8px solid ${focusColors[task.focus]}`;
+                        
+                        card.innerHTML = `
+                            <div class="flex-1 min-w-0 pr-4">
+                                <h4 class="font-semibold text-lg sm:text-xl cursor-pointer task-name-text" onclick="showMessageModal('${task.description.replace(/'/g, "\\'")}')">${task.name}</h4>
+                                <p class="text-xs sm:text-sm text-gray-400">${task.focus} • +${task.points} Energy</p>
+                            </div>
+                            <div class="task-action-container">
+                                <button class="task-button bg-[#00FFD1] text-black font-bold p-2 rounded-full hover:bg-opacity-90 transition-all active:scale-95 action-icon-button" data-task-name="${task.name}" data-task-focus="${task.focus}" data-task-points="${task.points}" ${isCompleted ? 'disabled' : ''}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check">
+                                        <path d="M20 6 9 17l-5-5"/>
+                                    </svg>
+                                </button>
+                                <button class="delete-task-button text-gray-400 text-lg hover:text-red-500" data-task-name="${task.name}">&times;</button>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    }
+                });
+            }
+        };
+
+        const renderRewards = () => {
+            const list = document.getElementById('rewardsList');
+            if (!list) return;
+            list.innerHTML = '';
+            rewards.forEach((reward, index) => {
+                const item = document.createElement('li');
+                item.className = 'flex items-center justify-between bg-gray-900 p-3 rounded-md shadow-sm text-white';
+                let costString = '';
+                for (const [key, value] of Object.entries(reward.cost)) {
+                    if (value > 0) {
+                        costString += `${value} ${key}, `;
+                    }
+                }
+                costString = costString.slice(0, -2);
+                item.innerHTML = `
+                    <div class="flex-grow">
+                        <span class="font-medium">${reward.name}</span>
+                        <span class="ml-2 text-sm text-gray-400">(${costString})</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="redeem-reward-button bg-[#00FFD1] text-black px-3 py-1 rounded-lg font-semibold text-sm hover:bg-opacity90 transition-all active:scale-95" data-reward-index="${index}">Use Skill</button>
+                        <button class="delete-reward-button text-gray-400 text-lg hover:text-red-500" data-reward-index="${index}">&times;</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        };
+
+        const masterReset = () => {
+            localStorage.clear();
+            window.location.reload();
+        };
+
+        const generateOriginStory = async (charName) => {
+            const originStoryContainer = document.getElementById('originStoryContainer');
+            const originChoicesContainer = document.getElementById('originChoicesContainer');
+            const storyLoadingIndicator = document.getElementById('storyLoadingIndicator');
+
+            const universe = customizableTerms.universe;
+            const homes = customizableTerms.homeNames.join(', ');
+            const groupType = customizableTerms.groupType;
+            const specialityTitle = customizableTerms.specialityTitle;
+            
+            const prompt = `The universe is "${universe}". You are a master storyteller with a full understanding of the storytelling nuances that match with the "${universe}" content. You have a full understanding of the laws and story of the "${universe}" universe. The current character's name is ${charName}. The tone, style, and lore of the story must be authentic to this universe. The character is described as "${characterDescription}". Generate two distinct, short background stories for them to choose from. Each story should be a single short paragraph describing their past and how they arrived at their current position and rank. Use lore, terminology, and key concepts from the "${universe}" universe to make the story feel authentic. The response MUST be a single JSON object with a key "origins", which contains an array of two story objects. Each object must have keys "story" (the paragraph), "home" (the name of their origin from (${homes})), "groupType" (a "${groupType}" from in universe that the player belongs to), "personality" (1-2 words describing their personality), and "speciality" (1-2 words describing their special power or skill, based on any staple powers or skills in universe). The values for "home" and "groupType" should be from the provided list, and the other values should be created based on the story.`;
+            
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "origins": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "story": {"type": "STRING"},
+                                        "home": {"type": "STRING"},
+                                        "groupType": {"type": "STRING"},
+                                        "personality": {"type": "STRING"},
+                                        "speciality": {"type": "STRING"}
+                                    }
+                                },
+                                "minItems": 2,
+                                "maxItems": 2
+                            }
+                        }
+                    }
+                }
+            };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            if (originChoicesContainer) originChoicesContainer.innerHTML = `<div class="col-span-2 text-center text-gray-400"><div class="loading-spinner mx-auto mb-2"></div>Unrolling your scroll of destiny...</div>`;
+            if (originStoryContainer) originStoryContainer.classList.remove('hidden');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    const data = JSON.parse(result.candidates[0].content.parts[0].text);
+                    if (originChoicesContainer) originChoicesContainer.innerHTML = '';
+                    data.origins.forEach((origin, index) => {
+                        const choiceCard = document.createElement('div');
+                        choiceCard.className = 'p-4 rounded-lg shadow-md bg-gray-900 flex flex-col items-center text-white';
+                        choiceCard.innerHTML = `
+                            <p class="mb-4 whitespace-pre-wrap">${origin.story}</p>
+                            <ul class="text-sm text-gray-400 space-y-1 mb-4 w-full text-left">
+                                <li>• Origin: ${origin.home}</li>
+                                <li>• ${groupType}: ${origin.groupType}</li>
+                                <li>• Personality: ${origin.personality}</li>
+                                <li>• ${specialityTitle}: ${origin.speciality}</li>
+                            </ul>
+                            <button class="select-origin-button bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full transition-all active:scale-95" data-story-index="${index}">Choose This Path</button>
+                        `;
+                        if (originChoicesContainer) originChoicesContainer.appendChild(choiceCard);
+                    });
+                     if (originStoryContainer) originStoryContainer.dataset.origins = JSON.stringify(data.origins);
+                } else {
+                    throw new Error("Invalid response from API");
+                }
+            } catch (error) {
+                console.error("Error generating origin story:", error);
+                if (originChoicesContainer) originChoicesContainer.innerHTML = `<p class="text-red-500 text-center">Failed to generate origin stories. Please try again.</p>`;
+                const generateStoryButton = document.getElementById('generateStoryButton');
+                if (generateStoryButton) generateStoryButton.disabled = false;
+            } finally {
+                if (storyLoadingIndicator) storyLoadingIndicator.classList.add('hidden');
+            }
+        };
+
+        const generateStory = async (currentCharacterName) => {
+            const storyLoadingIndicator = document.getElementById('storyLoadingIndicator');
+            const generateStoryButton = document.getElementById('generateStoryButton');
+            const storyOutput = document.getElementById('storyOutput');
+            const choiceSystemContainer = document.getElementById('choiceSystemContainer');
+            const originStoryContainer = document.getElementById('originStoryContainer');
+            const originNameDisplay = document.getElementById('originNameDisplay');
+            
+            // Clear previous story elements and hide them immediately to prevent visual glitches
+            if (storyOutput) storyOutput.innerHTML = '';
+            if (choiceSystemContainer) choiceSystemContainer.classList.add('hidden');
+            if (recordButtonContainer) recordButtonContainer.classList.add('hidden');
+            if (storyLoadingIndicator) storyLoadingIndicator.classList.remove('hidden');
+
+            if (playerChronicle.length === 0) {
+                 if (characterName) {
+                    if(originNameDisplay) originNameDisplay.textContent = characterName;
+                    await generateOriginStory(characterName);
+                 } else {
+                    const namingModal = document.getElementById('namingModal');
+                    if (namingModal) showModal('namingModal');
+                 }
+                 return;
+            }
+
+            let rankPrompt = '';
+            let arcType = 'regular';
+            let skillGain = '';
+            
+            const canonChronicles = retiredChronicles.map(c => c.story).join(' ');
+            const fullChronicle = playerChronicle.map(s => s.story).join(' ');
+            
+            const pronouns = playerPronouns.split('/');
+            const [subjective, objective, possessive] = pronouns;
+
+            let pronounPrompt = '';
+            if (subjective === 'they') {
+                 pronounPrompt = `The character's pronouns are they/them. Use 'they', 'them', and 'their' throughout the story.`;
+            } else {
+                 pronounPrompt = `The character's pronouns are ${subjective}/${objective}. Use '${subjective}', '${objective}', and '${possessive}' throughout the story.`;
+            }
+
+            const RANK_THRESHOLDS = {
+                [customizableTerms.ranks[1]]: 500,
+                [customizableTerms.ranks[2]]: 2000,
+                [customizableTerms.ranks[3]]: 5000
+            };
+
+            switch (playerRank) {
+                case customizableTerms.ranks[0]:
+                    rankPrompt = `You are a new ${customizableTerms.ranks[0]}. The story should take place in your home of ${characterBio.home} where you are learning basic techniques in a large class with a ${customizableTerms.ranks[2]} instructor. Interactions should involve classroom dynamics, basic drills, and possibly guests from other classes. You are known for your ${characterBio.personality} personality and your ${customizableTerms.specialityTitle} in ${characterBio.speciality}. Your ${customizableTerms.groupType} is the ${characterBio.groupType}.`;
+                    break;
+                case customizableTerms.ranks[1]:
+                    rankPrompt = `You are now a ${customizableTerms.ranks[1]}. The story should focus on their three-person squad, led by a ${customizableTerms.ranks[3]} sensei. They are tasked with C-rank or early B-rank tasks, learning teamwork, and applying their skills in the field. Your ${customizableTerms.specialityTitle} is ${characterBio.speciality}.`;
+                    break;
+                case customizableTerms.ranks[2]:
+                    rankPrompt = `You are a ${customizableTerms.ranks[2]}. The story should be about you leading a team of ${customizableTerms.ranks[1]} on a task or handling administrative tasks within the home, reflecting your increased responsibility. Your ${customizableTerms.specialityTitle} is ${characterBio.speciality}.`;
+                    break;
+                case customizableTerms.ranks[3]:
+                    rankPrompt = `You are an elite ${customizableTerms.ranks[3]}. The story should involve high-stakes tasks (A- or S-rank), solo assignments, or their role as a mentor to ${customizableTerms.ranks[1]}, reflecting their position of power and experience. Your ${customizableTerms.specialityTitle} is ${characterBio.speciality}.`;
+                    break;
+            }
+            
+            if (isPromotionArc) {
+                arcType = 'promotion';
+                rankPrompt = `The next part of their story should be a promotion exam. Describe the challenges they face in this critical test of skill.`;
+            }
+
+            const arcPrompt = (currentChapterInArc === ARC_LENGTH) ? `It is the end of an arc. This segment should conclude the current plotline.` : '';
+            
+            if (missionsCompletedSinceLastStory >= MIN_MISSIONS_FOR_STORY) {
+                if (Math.random() < 0.25) {
+                    skillGain = `The user has performed exceptionally well. Include a small positive event where they discover or a new ${customizableTerms.skillSectionTitle}. Name the new ${customizableTerms.skillSectionTitle} at the end of the narrative in the format [NEW SKILL: Skill Name].`;
+                }
+            }
+            const prompt = `You are a master storyteller in the style of a ${customizableTerms.universe} universe. The character is a young ${customizableTerms.playerTitle} named ${currentCharacterName}. ${pronounPrompt} Their lifetime Energy is ${lifetimeEnergy}. Their current rank is ${playerRank}. Their chronicle is: ${fullChronicle}. Additionally, there are past legendary players who exist in this world: ${canonChronicles}. This is Arc ${currentArc}. This is Chapter ${currentChapterInArc} of the arc, which has a length of ${ARC_LENGTH} chapters (use your understanding of the storytelling of this universe, the current arc, and how far into the arc to determine when certain story beats should be coming to a climax or wrapping up. ${rankPrompt} ${arcPrompt} ${skillGain} Tell a short narrative segment that ends at a crucial moment, requiring a choice. The narrative should be no more than 3 paragraphs and follow good pacing for a ${customizableTerms.universe} universe. For a ${customizableTerms.universe} story, the conflict should not involve physical fighting unless the universe is an action universe. It must end with a single question like, "What does ${currentCharacterName} do?" and should not use any other anime or universes. The AI should use the chapter count to dictate the narrative pacing or to plan climaxes, but should ensure each chapter entry has some action, drama, tension, reveal, or strong narrative mover.`;
+            
+            const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            if (storyLoadingIndicator) storyLoadingIndicator.classList.remove('hidden');
+            if (generateStoryButton) generateStoryButton.disabled = true;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    if (storyOutput) storyOutput.innerHTML = `<p class="whitespace-pre-wrap">${text}</p>`;
+                    temporaryStorySegment = text;
+                    lastStoryTime = new Date().getTime();
+                    missionsCompletedSinceLastStory = 0;
+                    saveState();
+                    generateChoices(text, arcType);
+                } else {
+                    throw new Error("Invalid response from API");
+                }
+            } catch (error) {
+                console.error("Error fetching from API:", error);
+                if (storyOutput) storyOutput.innerHTML = '<p class="text-red-500">Failed to generate story. Please check your network and try again.</p>';
+                if (storyLoadingIndicator) storyLoadingIndicator.classList.add('hidden');
+                if (generateStoryButton) generateStoryButton.disabled = false;
+            }
+        };
+
+        const generateChoices = async (storyText, arcType) => {
+            const choiceButtonsContainer = document.getElementById('choiceButtonsContainer');
+            const choiceLoadingIndicator = document.getElementById('choiceLoadingIndicator');
+            const generateStoryButton = document.getElementById('generateStoryButton');
+            const storyLoadingIndicator = document.getElementById('storyLoadingIndicator');
+
+            const prompt = `Based on the following short story about a character, generate exactly 4 possible and drastically different next actions for the character. The choices should be short, one-sentence descriptions. At least one choice should involve using a known skill if any exist. The known skills are: ${knownSkills.join(', ')}. If no skills are known, provide four general choices. The choices should have the potential to move the narrative forward in completely different directions. Respond with a single JSON object with a key named "choices" which is an array of strings. Do not include any other text or formatting outside the JSON object. The story is:\n\n"${storyText}"`;
+            
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "choices": {
+                                "type": "ARRAY",
+                                "items": { "type": "STRING" },
+                                "maxItems": 4,
+                                "minItems": 4
+                            }
+                        }
+                    }
+                }
+            };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            if(choiceButtonsContainer) choiceButtonsContainer.innerHTML = `<div class="col-span-2 text-center text-gray-400"><div class="loading-spinner mx-auto mb-2"></div>Generating choices...</div>`;
+            if (storyLoadingIndicator) storyLoadingIndicator.classList.add('hidden');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    const data = JSON.parse(result.candidates[0].content.parts[0].text);
+                    if (choiceButtonsContainer) choiceButtonsContainer.innerHTML = '';
+                    data.choices.forEach(choice => {
+                        const button = document.createElement('button');
+                        button.className = 'choice-button bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-700 transition-all text-sm active:scale-95';
+                        button.textContent = choice;
+                        button.addEventListener('click', () => {
+                            generateChoiceOutcome(characterName, choice, missionsCompletedSinceLastStory, arcType);
+                        });
+                        if (choiceButtonsContainer) choiceButtonsContainer.appendChild(button);
+                    });
+                    if (choiceSystemContainer) choiceSystemContainer.classList.remove('hidden');
+                } else {
+                    throw new Error("Invalid response from API");
+                }
+            } catch (error) {
+                console.error("Error generating choices:", error);
+                if (choiceButtonsContainer) choiceButtonsContainer.innerHTML = `<p class="text-red-500 text-center">Failed to generate choices. Please try again.</p>`;
+                if (generateStoryButton) generateStoryButton.disabled = false;
+            }
+        };
+
+        const generateChoiceOutcome = async (characterName, userChoice, missionsCompleted, arcType) => {
+            const choiceButtonsContainer = document.getElementById('choiceButtonsContainer');
+            const choiceLoadingIndicator = document.getElementById('choiceLoadingIndicator');
+            const choiceOutcomeOutput = document.getElementById('choiceOutcomeOutput');
+            const recordButtonContainer = document.getElementById('recordButtonContainer');
+            const generateStoryButton = document.getElementById('generateStoryButton');
+
+            const successRate = missionsCompleted >= MIN_MISSIONS_FOR_STORY ? "high" : "low";
+            let prompt;
+            
+            const pronouns = playerPronouns.split('/');
+            const [subjective, objective, possessive] = pronouns;
+            
+            if (customizableTerms.universe === 'Sitcom') {
+                prompt = `You are a storyteller for a sitcom. The ${customizableTerms.playerTitle} named ${characterName} is in the middle of a story. The previous action was "${temporaryStorySegment}". Their choice is "${userChoice}". Based on their recent tasks success (which gives them a ${successRate} chance of success), write a short story segment that continues the narrative and resolves the choice they made. The conflict and resolution should be humorous and based on character drama, not physical fighting. The pronouns for the character are ${subjective}/${objective}.`;
+            } else {
+                prompt = `You are a storyteller. The ${customizableTerms.playerTitle} named ${characterName} is in the middle of a story. The previous action was "${temporaryStorySegment}". Their response is "${userChoice}". Based on their recent tasks success (which gives them a ${successRate} chance of success), write a short story segment that continues the narrative and resolves the choice they made. The universe of this story is ${customizableTerms.universe}. The pronouns for the character are ${subjective}/${objective}.`;
+            }
+
+            if (arcType === 'promotion') {
+                prompt = `The ${customizableTerms.playerTitle} named ${characterName} is in the middle of their exam. Their previous action was described as "${temporaryStorySegment}". Their choice is "${userChoice}". Because they have a "high" chance of success, describe the outcome of the exam. If they are successful, mention them achieving their new rank. The universe of this story is ${customizableTerms.universe}. The pronouns for the character are ${subjective}/${objective}.`;
+            }
+
+            const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            if(choiceButtonsContainer) choiceButtonsContainer.innerHTML = '';
+            if(choiceLoadingIndicator) choiceLoadingIndicator.classList.remove('hidden');
+            if(choiceOutcomeOutput) choiceOutcomeOutput.classList.add('hidden');
+            temporaryChoice = userChoice;
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    const outcomeText = result.candidates[0].content.parts[0].text;
+                    
+                    const skillMatch = outcomeText.match(/\[NEW SKILL: (.+?)\]/);
+                    if (skillMatch) {
+                        const newSkill = skillMatch[1];
+                        if (!knownSkills.includes(newSkill)) {
+                            knownSkills.push(newSkill);
+                            saveState();
+                        }
+                    }
+
+                    if (arcType === 'promotion') {
+                        const newRankMap = {
+                            [customizableTerms.ranks[0]]: customizableTerms.ranks[1],
+                            [customizableTerms.ranks[1]]: customizableTerms.ranks[2],
+                            [customizableTerms.ranks[2]]: customizableTerms.ranks[3]
+                        };
+                        const success = outcomeText.toLowerCase().includes('successfully') || outcomeText.toLowerCase().includes('succeeded') || outcomeText.toLowerCase().includes('passed');
+                        
+                        if (success) {
+                            playerRank = newRankMap[playerRank];
+                            showMessageModal(`Congratulations! You have been promoted to ${playerRank}!`);
+                        } else {
+                            showMessageModal("You did not succeed in your promotion exam. Train harder and try again!");
+                        }
+                        isPromotionArc = false;
+                        saveState();
+                    }
+
+                    if(choiceOutcomeOutput) {
+                        choiceOutcomeOutput.innerHTML = `<p class="whitespace-pre-wrap">${outcomeText}</p>`;
+                        choiceOutcomeOutput.classList.remove('hidden');
+                    }
+                    temporaryOutcome = outcomeText;
+                    if(recordButtonContainer) recordButtonContainer.classList.remove('hidden');
+
+                } else {
+                    throw new Error("Invalid response from API");
+                }
+            } catch (error) {
+                console.error("Error generating choice outcome:", error);
+                if(choiceOutcomeOutput) {
+                    choiceOutcomeOutput.innerHTML = `<p class="text-red-500">Failed to unfold the outcome. Please try again.</p>`;
+                    choiceOutcomeOutput.classList.remove('hidden');
+                }
+                if(recordButtonContainer) recordButtonContainer.classList.add('hidden');
+                if(generateStoryButton) generateStoryButton.disabled = false;
+            } finally {
+                if(choiceLoadingIndicator) choiceLoadingIndicator.classList.add('hidden');
+            }
+        };
+        
+        const renderChronicle = () => {
+            const chronicleContent = document.getElementById('chronicleContent');
+            if (!chronicleContent) return;
+            chronicleContent.innerHTML = '';
+
+            if (playerChronicle.length === 0) {
+                chronicleContent.innerHTML = '<p class="text-center text-gray-400">Your player chronicle is empty. Complete tasks and reveal your story to begin your saga!</p>';
+                return;
+            }
+
+            playerChronicle.forEach(segment => {
+                const chronicleEntry = document.createElement('div');
+                chronicleEntry.className = 'chronicle-entry';
+                chronicleEntry.innerHTML = `
+                    <h4 class="font-bold text-lg text-gray-300">Arc ${segment.arc}, Chapter ${segment.chapter} - ${segment.date}</h4>
+                    <p class="text-sm whitespace-pre-wrap mt-2">${segment.story}</p>
+                `;
+                chronicleContent.appendChild(chronicleEntry);
+            });
+        };
+
+        const saveState = () => {
+            localStorage.setItem('customizableTerms', JSON.stringify(customizableTerms));
+            localStorage.setItem('energy', JSON.stringify(energy));
+            localStorage.setItem('lifetimeEnergy', JSON.stringify(lifetimeEnergy));
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+            localStorage.setItem('rewards', JSON.stringify(rewards));
+            localStorage.setItem('missionsCompletedSinceLastStory', JSON.stringify(missionsCompletedSinceLastStory));
+            localStorage.setItem('lastStoryTime', JSON.stringify(lastStoryTime));
+            localStorage.setItem('characterName', characterName);
+            localStorage.setItem('playerPronouns', playerPronouns);
+            localStorage.setItem('playerChronicle', JSON.stringify(playerChronicle));
+            localStorage.setItem('playerImage', playerImage);
+            localStorage.setItem('characterDescription', characterDescription);
+            localStorage.setItem('allTasks', JSON.stringify(allTasks));
+            localStorage.setItem('lastDailyReset', lastDailyReset);
+            localStorage.setItem('playerRank', playerRank);
+            localStorage.setItem('isPromotionArc', JSON.stringify(isPromotionArc));
+            localStorage.setItem('knownSkills', JSON.stringify(knownSkills));
+            localStorage.setItem('characterBio', JSON.stringify(characterBio));
+            localStorage.setItem('retiredChronicles', JSON.stringify(retiredChronicles));
+            localStorage.setItem('lastImageTime', JSON.stringify(lastImageTime));
+            localStorage.setItem('themeChosen', themeChosen);
+            localStorage.setItem('currentArc', currentArc);
+            localStorage.setItem('currentChapterInArc', currentChapterInArc);
+            updatePointsDisplay();
+            renderEnergySummary();
+            updateRankAndSkillDisplay();
+        };
+
+        const initializeMainApp = () => {
+            const fontDetails = fontMap[customizableTerms.universe];
+            if (fontDetails) {
+                const fontLink = document.getElementById('themeFont');
+                if (fontLink) {
+                    fontLink.href = fontDetails.url;
+                }
+                document.documentElement.style.setProperty('--theme-font', `'${fontDetails.name}', monospace`);
+            } else {
+                 document.documentElement.style.setProperty('--theme-font', `'Roboto Mono', monospace`);
+            }
+            
+            document.getElementById('docTitle').textContent = customizableTerms.appTitle;
+            document.getElementById('appTitleDisplay').textContent = customizableTerms.appTitle;
+            document.getElementById('playerTitleDisplay').textContent = customizableTerms.playerTitle;
+            document.getElementById('playerTitleDisplay2').textContent = customizableTerms.playerTitle;
+            document.getElementById('playerTitleDisplay3').textContent = customizableTerms.playerTitle;
+            document.getElementById('skillSectionHeading').textContent = `${customizableTerms.skillSectionTitle} Scrolls`;
+            document.getElementById('createSkillHeading').textContent = `Create New ${customizableTerms.skillSectionTitle}`;
+            document.getElementById('availableScrollsHeading').textContent = `Available Scrolls`;
+            if (document.getElementById('missionModalTitle')) document.getElementById('missionModalTitle').textContent = `Manage ${customizableTerms.taskTitle}s`;
+            if (document.getElementById('dailyTasksPanel')) document.getElementById('dailyTasksPanel').querySelector('h2').textContent = `Daily ${customizableTerms.taskTitle}s`;
+            if (document.getElementById('weeklyTasksPanel')) document.getElementById('weeklyTasksPanel').querySelector('h2').textContent = `Weekly ${customizableTerms.taskTitle}s`;
+            if (document.getElementById('monthlyTasksPanel')) document.getElementById('monthlyTasksPanel').querySelector('h2').textContent = `Monthly ${customizableTerms.taskTitle}s`;
+
+
+            if (customizableTerms.backgroundUrl) {
+                document.body.style.setProperty('--bg-image', `url('${customizableTerms.backgroundUrl}')`);
+            } else {
+                document.body.style.setProperty('--bg-image', `none`);
+            }
+            document.documentElement.style.setProperty('--theme-color', customizableTerms.themeColor);
+
+            renderNewSkillCostInputs();
+            checkDailyReset();
+            
+            if (!characterName) {
+                const namingModal = document.getElementById('namingModal');
+                if (namingModal) showModal('namingModal');
+            } else {
+                if(characterNameDisplay) characterNameDisplay.textContent = characterName;
+                if(playerImageDisplay) playerImageDisplay.src = playerImage;
+                if (allTasks.length === 0) {
+                    allTasks = [...defaultTasks];
+                }
+                updatePointsDisplay();
+                renderEnergySummary();
+                renderTasks('daily');
+                renderTasks('weekly');
+                renderTasks('monthly');
+                renderRewards();
+                updateStoryStatus();
+                updateRankAndSkillDisplay();
+                updateImageGeneratorStatus();
+                applyThemeIcons();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            customizableTerms = JSON.parse(localStorage.getItem('customizableTerms')) || defaultCustomizableTerms;
+            energy = JSON.parse(localStorage.getItem('energy')) || { total: 0, 'Energy 1': 0, 'Energy 2': 0, 'Energy 3': 0, 'Energy 4': 0, 'Energy 5': 0 };
+            lifetimeEnergy = JSON.parse(localStorage.getItem('lifetimeEnergy')) || 0;
+            completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || {};
+            rewards = JSON.parse(localStorage.getItem('rewards')) || [];
+            missionsCompletedSinceLastStory = JSON.parse(localStorage.getItem('missionsCompletedSinceLastStory')) || 0;
+            lastStoryTime = JSON.parse(localStorage.getItem('lastStoryTime')) || 0;
+            characterName = localStorage.getItem('characterName') || '';
+            playerPronouns = localStorage.getItem('playerPronouns') || 'they/them';
+            playerChronicle = JSON.parse(localStorage.getItem('playerChronicle')) || [];
+            playerImage = localStorage.getItem('playerImage') || '';
+            characterDescription = localStorage.getItem('characterDescription') || '';
+            allTasks = JSON.parse(localStorage.getItem('allTasks')) || [];
+            lastDailyReset = localStorage.getItem('lastDailyReset') || new Date(0).toISOString();
+            playerRank = localStorage.getItem('playerRank') || customizableTerms.ranks[0];
+            isPromotionArc = JSON.parse(localStorage.getItem('isPromotionArc')) || false;
+            knownSkills = JSON.parse(localStorage.getItem('knownSkills')) || [];
+            characterBio = JSON.parse(localStorage.getItem('characterBio')) || null;
+            retiredChronicles = JSON.parse(localStorage.getItem('retiredChronicles')) || [];
+            lastImageTime = JSON.parse(localStorage.getItem('lastImageTime')) || 0;
+            themeChosen = localStorage.getItem('themeChosen') === 'true';
+            currentArc = parseInt(localStorage.getItem('currentArc')) || 1;
+            currentChapterInArc = parseInt(localStorage.getItem('currentChapterInArc')) || 1;
+            
+            const closeMessageButton = document.getElementById('closeMessage');
+            if (closeMessageButton) closeMessageButton.addEventListener('click', () => {
+                hideModal('messageModal');
+            });
+            const customizationModal = document.getElementById('customizationModal');
+            const masterResetButton = document.getElementById('masterResetButton');
+            const openCustomizationButton = document.getElementById('openCustomizationFromMain');
+            const closeCustomizationModalButton = document.getElementById('closeCustomizationModal');
+            const saveCustomizationButton = document.getElementById('saveCustomizationButton');
+            const cancelCustomizationButton = document.getElementById('cancelCustomizationButton');
+            const generateThemeButton = document.getElementById('generateThemeButton');
+            const universeInput = document.getElementById('universeInput');
+            const themeLoadingIndicator = document.getElementById('themeLoadingIndicator');
+            const customizationContent = document.getElementById('customizationContent');
+            const themeGeneratorContent = document.getElementById('themeGeneratorContent');
+            const rerollThemeButton = document.getElementById('rerollThemeButton');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const initiateButton = document.getElementById('initiateButton');
+            const tutorialModal = document.getElementById('tutorialModal');
+            const themeGeneratorTab = document.getElementById('themeGeneratorTab');
+            const manualCustomizationTab = document.getElementById('manualCustomizationTab');
+            
+            const customAppTitleInput = document.getElementById('customAppTitle');
+            const customPlayerTitleInput = document.getElementById('customPlayerTitle');
+            const customMasterTitleInput = document.getElementById('customMasterTitle');
+            const customSkillSectionTitleInput = document.getElementById('customSkillSectionTitle');
+            const customTaskTitleInput = document.getElementById('customTaskTitle');
+            const customRanksInput = document.getElementById('customRanks');
+            const customEnergyTypesInput = document.getElementById('customEnergyTypes');
+            const customHomeNamesInput = document.getElementById('customHomeNames');
+            const customGroupTypeInput = document.getElementById('customGroupType');
+            const customSpecialityTitleInput = document.getElementById('customSpecialityTitle');
+            const customBackgroundUrlInput = document.getElementById('customBackgroundUrl');
+            const customThemeIconUrlInput = document.getElementById('customThemeIconUrl');
+            const customThemeColorInput = document.getElementById('customThemeColor');
+            
+            const modalBackgroundUploadInput = document.getElementById('modalBackgroundUploadInput');
+            const modalCharacterDescriptionTextarea = document.getElementById('modalCharacterDescriptionTextarea');
+            const originStoryContainer = document.getElementById('originStoryContainer');
+            const originChoicesContainer = document.getElementById('originChoicesContainer');
+            const generateStoryButton = document.getElementById('generateStoryButton');
+            const storyOutput = document.getElementById('storyOutput');
+            const storyLoadingIndicator = document.getElementById('storyLoadingIndicator');
+            const characterNameDisplay = document.getElementById('characterNameDisplay');
+            const namingModal = document.getElementById('namingModal');
+            const originNameDisplay = document.getElementById('originNameDisplay');
+            const generateImageButton = document.getElementById('generateImageButton');
+            const imageGeneratorSection = document.getElementById('imageGeneratorSection');
+            const imageLoadingIndicator = document.getElementById('imageLoadingIndicator');
+            const setProfileImageButton = document.getElementById('setProfileImageButton');
+            const chronicleModal = document.getElementById('chronicleModal');
+            const chronicleContent = document.getElementById('chronicleContent');
+            const viewChronicleButton = document.getElementById('viewChronicleButton');
+            const closeChronicleModalButton = document.getElementById('closeChronicleModalButton');
+            const recordButton = document.getElementById('recordButton');
+            const recordButtonContainer = document.getElementById('recordButtonContainer');
+            const playerImageDisplay = document.getElementById('playerImageDisplay');
+            const imageModal = document.getElementById('imageModal');
+            const enlargedImage = document.getElementById('enlargedImage');
+            
+            
+            let currentTutorialStep = 0;
+
+            if(customGroupTypeInput) customGroupTypeInput.value = customizableTerms.groupType;
+            if(customSpecialityTitleInput) customSpecialityTitleInput.value = customizableTerms.specialityTitle;
+
+            if (initiateButton) {
+                initiateButton.addEventListener('click', () => {
+                    welcomeScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        welcomeScreen.remove();
+                        showTutorial();
+                    }, 1000);
+                });
+            }
+
+            const tutorialSteps = [
+                { title: 'Welcome to the Canduit!', text: 'The Canduit helps you turn your daily habits and goals into a grand adventure. Let\'s begin by setting up your world.', elementId: 'playerPanel' },
+                { title: 'Your Daily Missions', text: 'These are your daily tasks. Complete them to earn energy points. Click the checkmark to mark a task as complete. Click the task name to see its description.', elementId: 'dailyTasksPanel' },
+                { title: 'Weekly & Monthly Missions', text: 'Here you can track your longer-term goals. They grant more energy but reset less frequently.', elementId: 'weeklyTasksPanel' },
+                { title: 'Customize Your World', text: 'You can create a new theme using the AI generator, or manually edit all the key terms of your world.', elementId: 'openCustomizationFromMain' },
+                { title: 'Create Missions', text: 'Click this button to open the Mission Maker. You can manually add new tasks or use the AI Master to generate a plan for you.', elementId: 'openAIMissionModal' },
+                { title: 'Your Personal Story', text: 'This is where your adventure unfolds! Complete missions to earn enough points to generate a story segment and see your character\'s legend grow.', elementId: 'playerPanel' },
+                { title: 'Skill Scrolls', text: 'Earn powerful skills by redeeming your energy. Your skills will become part of your story and unlock new options.', elementId: 'skillsPanel' },
+                { title: 'Master Reset', text: 'And finally, the Master Reset. Use this to erase all your progress and start a new journey in a new world.', elementId: 'masterResetButton' }
+            ];
+
+            const showTutorial = () => {
+                if(tutorialModal) {
+                    currentTutorialStep = 0;
+                    updateTutorialStep();
+                    showModal('tutorialModal');
+                }
+            };
+            
+            const updateTutorialStep = () => {
+                const step = tutorialSteps[currentTutorialStep];
+                if (tutorialModal) {
+                    const tutorialTitle = document.getElementById('tutorialTitle');
+                    const tutorialText = document.getElementById('tutorialText');
+                    const nextButton = document.getElementById('nextTutorial');
+                    const prevButton = document.getElementById('prevTutorial');
+
+                    if (tutorialTitle) tutorialTitle.textContent = step.title;
+                    if (tutorialText) tutorialText.textContent = step.text;
+                    if (prevButton) prevButton.disabled = currentTutorialStep === 0;
+                    if (nextButton) nextButton.textContent = currentTutorialStep === tutorialSteps.length - 1 ? 'Finish Tutorial' : 'Next';
+
+                    // Remove highlight from previous step
+                    const previousElement = document.querySelector('.highlight-tutorial');
+                    if (previousElement) {
+                        previousElement.classList.remove('highlight-tutorial');
+                    }
+
+                    // Highlight current step
+                    const currentElement = document.getElementById(step.elementId);
+                    if (currentElement) {
+                        currentElement.classList.add('highlight-tutorial');
+                        currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            };
+
+            document.body.addEventListener('click', (e) => {
+                if (e.target.id === 'nextTutorial') {
+                    if (currentTutorialStep < tutorialSteps.length - 1) {
+                        currentTutorialStep++;
+                        updateTutorialStep();
+                    } else {
+                        if (tutorialModal) hideModal('tutorialModal');
+                        if (customizationModal) showModal('customizationModal');
+                        if (themeGeneratorContent) themeGeneratorContent.classList.remove('hidden');
+                        if (customizationContent) customizationContent.classList.add('hidden');
+                        if (themeGeneratorTab) {
+                            themeGeneratorTab.classList.add('border-[#00FFD1]', 'text-white');
+                            if(manualCustomizationTab) manualCustomizationTab.classList.remove('border-[#00FFD1]', 'text-white');
+                        }
+                    }
+                }
+                if (e.target.id === 'prevTutorial') {
+                    if (currentTutorialStep > 0) {
+                        currentTutorialStep--;
+                        updateTutorialStep();
+                    }
+                }
+            });
+            if (themeGeneratorTab) themeGeneratorTab.addEventListener('click', () => {
+                if (customizationContent) customizationContent.classList.add('hidden');
+                if (themeGeneratorContent) themeGeneratorContent.classList.remove('hidden');
+                if (themeGeneratorTab) themeGeneratorTab.classList.add('border-[#00FFD1]', 'text-white');
+                if (manualCustomizationTab) manualCustomizationTab.classList.remove('border-[#00FFD1]', 'text-white');
+            });
+            if (manualCustomizationTab) manualCustomizationTab.addEventListener('click', () => {
+                if (themeGeneratorContent) themeGeneratorContent.classList.add('hidden');
+                if (customizationContent) customizationContent.classList.remove('hidden');
+                if (manualCustomizationTab) manualCustomizationTab.classList.add('border-[#00FFD1]', 'text-white');
+                if (themeGeneratorTab) themeGeneratorTab.classList.remove('border-[#00FFD1]', 'text-white');
+            });
+
+            if (openCustomizationButton) {
+                openCustomizationButton.addEventListener('click', () => {
+                    showModal('customizationModal');
+                    if (customizationContent) customizationContent.classList.remove('hidden');
+                    if (themeGeneratorContent) themeGeneratorContent.classList.add('hidden');
+                    if (customAppTitleInput) customAppTitleInput.value = customizableTerms.appTitle;
+                    if (customPlayerTitleInput) customPlayerTitleInput.value = customizableTerms.playerTitle;
+                    if (customMasterTitleInput) customMasterTitleInput.value = customizableTerms.masterTitle;
+                    if (customSkillSectionTitleInput) customSkillSectionTitleInput.value = customizableTerms.skillSectionTitle;
+                    if (customTaskTitleInput) customTaskTitleInput.value = customizableTerms.taskTitle;
+                    if (customRanksInput) customRanksInput.value = Array.isArray(customizableTerms.ranks) ? customizableTerms.ranks.join(', ') : '';
+                    if (customEnergyTypesInput) customEnergyTypesInput.value = Array.isArray(customizableTerms.energyTypes) ? customizableTerms.energyTypes.join(', ') : '';
+                    if (customHomeNamesInput) customHomeNamesInput.value = Array.isArray(customizableTerms.homeNames) ? customizableTerms.homeNames.join(', ') : '';
+                    if (customGroupTypeInput) customGroupTypeInput.value = customizableTerms.groupType;
+                    if (customSpecialityTitleInput) customSpecialityTitleInput.value = customizableTerms.specialityTitle;
+                    if (customBackgroundUrlInput) customBackgroundUrlInput.value = customizableTerms.backgroundUrl;
+                    if (customThemeIconUrlInput) customThemeIconUrlInput.value = customizableTerms.themeIconUrl;
+                    if (customThemeColorInput) customThemeColorInput.value = customizableTerms.themeColor;
+                });
+            }
+
+            if(masterResetButton) masterResetButton.addEventListener('click', () => {
+                showConfirmationModal(
+                    'Master Reset',
+                    'This will permanently delete all your progress, tasks, and customizations. The page will reload and you will start over as a new player. Do you want to proceed?',
+                    null,
+                    () => {
+                        masterReset();
+                    }
+                );
+            });
+            
+            if (closeCustomizationModalButton) closeCustomizationModalButton.addEventListener('click', () => {
+                if (customizationModal) hideModal('customizationModal');
+            });
+
+            if (cancelCustomizationButton) cancelCustomizationButton.addEventListener('click', () => {
+                if (customizationModal) hideModal('customizationModal');
+            });
+            
+            if (saveCustomizationButton) saveCustomizationButton.addEventListener('click', async () => {
+                const newCustomTerms = {
+                    appTitle: customAppTitleInput.value.trim() || defaultCustomizableTerms.appTitle,
+                    playerTitle: customPlayerTitleInput.value.trim() || defaultCustomizableTerms.playerTitle,
+                    masterTitle: customMasterTitleInput.value.trim() || defaultCustomizableTerms.masterTitle,
+                    skillSectionTitle: customSkillSectionTitleInput.value.trim() || defaultCustomizableTerms.skillSectionTitle,
+                    createSkillHeading: `Create New ${customSkillSectionTitleInput.value.trim() || 'Skill'}`,
+                    availableScrollsHeading: `Available ${customSkillSectionTitleInput.value.trim() || 'Scrolls'}`,
+                    taskTitle: customTaskTitleInput.value.trim() || defaultCustomizableTerms.taskTitle,
+                    ranks: (customRanksInput.value || '').split(',').map(rank => rank.trim()) || defaultCustomizableTerms.ranks,
+                    energyTypes: (customEnergyTypesInput.value || '').split(',').map(type => type.trim()) || defaultCustomizableTerms.energyTypes,
+                    homeNames: (customHomeNamesInput.value || '').split(',').map(name => name.trim()) || defaultCustomizableTerms.homeNames,
+                    groupType: customGroupTypeInput.value.trim() || defaultCustomizableTerms.groupType,
+                    specialityTitle: customSpecialityTitleInput.value.trim() || defaultCustomizableTerms.specialityTitle,
+                    backgroundUrl: customBackgroundUrlInput.value.trim() || defaultCustomizableTerms.backgroundUrl,
+                    themeIconUrl: customThemeIconUrlInput.value.trim() || defaultCustomizableTerms.themeIconUrl,
+                    themeColor: customThemeColorInput.value.trim() || defaultCustomizableTerms.themeColor,
+                    universe: customizableTerms.universe
+                };
+                
+                showConfirmationModal(
+                    'Apply Customization',
+                    'This will reset your character, rank, and chronicle but keep your energy levels and tasks. Do you want to proceed?',
+                    null,
+                    () => {
+                        localStorage.setItem('customizableTerms', JSON.stringify(newCustomTerms));
+                        localStorage.setItem('themeChosen', 'true');
+                        
+                        characterName = '';
+                        playerPronouns = 'they/them';
+                        playerChronicle = [];
+                        playerImage = '';
+                        characterDescription = '';
+                        characterBio = null;
+                        playerRank = newCustomTerms.ranks[0];
+                        missionsCompletedSinceLastStory = 0;
+                        lastStoryTime = 0;
+                        lastImageTime = 0;
+                        currentArc = 1;
+                        currentChapterInArc = 1;
+                        
+                        customizableTerms = newCustomTerms;
+                        
+                        saveState();
+                        hideModal('customizationModal');
+                        initializeMainApp();
+                        
+                    }
+                );
+            });
+            
+            const generateAndPopulateTheme = async (universe) => {
+                const generateThemeButton = document.getElementById('generateThemeButton');
+                const rerollThemeButton = document.getElementById('rerollThemeButton');
+                const themeLoadingIndicator = document.getElementById('themeLoadingIndicator');
+                const customAppTitleInput = document.getElementById('customAppTitle');
+                const customPlayerTitleInput = document.getElementById('customPlayerTitle');
+                const customMasterTitleInput = document.getElementById('customMasterTitle');
+                const customSkillSectionTitleInput = document.getElementById('customSkillSectionTitle');
+                const customTaskTitleInput = document.getElementById('customTaskTitle');
+                const customRanksInput = document.getElementById('customRanks');
+                const customEnergyTypesInput = document.getElementById('customEnergyTypes');
+                const customHomeNamesInput = document.getElementById('customHomeNames');
+                const customGroupTypeInput = document.getElementById('customGroupType');
+                const customSpecialityTitleInput = document.getElementById('customSpecialityTitle');
+                const customBackgroundUrlInput = document.getElementById('customBackgroundUrl');
+                const customThemeIconUrlInput = document.getElementById('customThemeIconUrl');
+                const customThemeColorInput = document.getElementById('customThemeColor');
+                
+                if (themeLoadingIndicator) themeLoadingIndicator.classList.remove('hidden');
+                if (generateThemeButton) generateThemeButton.disabled = true;
+                if (rerollThemeButton) rerollThemeButton.disabled = true;
+                
+                const prompt = `Generate a complete and cohesive JSON object for a gamified productivity app based on the universe of "${universe}". All fields MUST be filled. The object should have the following keys: "appTitle", "playerTitle" (the basic role the player takes in this universe, ie ninja, neighbor, traveler), "masterTitle" (name of an authority/god like character in the universe that the games AI will be named for i.e mom or god), "skillSectionTitle" (what the usable skills a character in this universe can pick up, i.e powers, hijinks, talents), "taskTitle" (what to call the tasks, i.e meditations, missions, goals), "ranks" (as a string array of exactly 4 titles that best represent different phases of a journey through the universe, i.e child to adult, rookie to captain, noob to experienced), "energyTypes" (as a string array of exactly 5 types of energy, inspired by the universe), "homeNames" (as a string array of exactly 5 names of notable places a character could be from in this universe), "groupType" (a sub group in the universe the character would belong to, i.e Traveling Party, Team, Family, Workplace), "specialityTitle" (a category of special abilities within the universe, i.e SuperPower, Element, Hobby), "universe" (which should be "${universe}"), and "themeColor" (a single hex code color string). Be creative and ensure all terms fit the theme. The response MUST be a single JSON object.`;
+                
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                             type: "OBJECT",
+                             properties: {
+                                 "appTitle": { "type": "STRING" },
+                                 "playerTitle": { "type": "STRING" },
+                                 "masterTitle": { "type": "STRING" },
+                                 "skillSectionTitle": { "type": "STRING" },
+                                 "taskTitle": { "type": "STRING" },
+                                 "ranks": {
+                                     "type": "ARRAY",
+                                     "items": { "type": "STRING" },
+                                     "minItems": 4,
+                                     "maxItems": 4
+                                 },
+                                 "energyTypes": {
+                                     "type": "ARRAY",
+                                     "items": { "type": "STRING" },
+                                     "minItems": 5,
+                                     "maxItems": 5
+                                 },
+                                 "homeNames": {
+                                     "type": "ARRAY",
+                                     "items": { "type": "STRING" },
+                                     "minItems": 5,
+                                     "maxItems": 5
+                                 },
+                                 "groupType": { "type": "STRING" },
+                                 "specialityTitle": { "type": "STRING" },
+                                 "universe": {"type": "STRING"},
+                                 "themeColor": { "type": "STRING" }
+                             }
+                        }
+                    }
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                let attempts = 0;
+                const maxAttempts = 3;
+                const baseDelay = 1000;
+                let success = false;
+                let data = null;
+
+                while (attempts < maxAttempts && !success) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                             console.error(`API call failed with status: ${response.status}`);
+                             throw new Error(`API call failed with status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const jsonString = result.candidates[0].content.parts[0].text;
+                            data = JSON.parse(jsonString);
+                            success = true;
+                        } else {
+                            console.error('No valid content in API response:', result);
+                            throw new Error('No valid content in API response');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching from API:', error);
+                        attempts++;
+                        if (attempts < maxAttempts) {
+                            const delay = baseDelay * Math.pow(2, attempts - 1) + Math.random() * 1000;
+                            await new Promise(res => setTimeout(res, delay));
+                        }
+                    }
+                }
+
+                if (success && data) {
+                    if (customAppTitleInput) customAppTitleInput.value = data.appTitle || '';
+                    if (customPlayerTitleInput) customPlayerTitleInput.value = data.playerTitle || '';
+                    if (customMasterTitleInput) customMasterTitleInput.value = data.masterTitle || '';
+                    if (customSkillSectionTitleInput) customSkillSectionTitleInput.value = data.skillSectionTitle || '';
+                    if (customTaskTitleInput) customTaskTitleInput.value = data.taskTitle || '';
+                    if (customRanksInput && Array.isArray(data.ranks)) customRanksInput.value = data.ranks.join(', ');
+                    if (customEnergyTypesInput && Array.isArray(data.energyTypes)) customEnergyTypesInput.value = data.energyTypes.join(', ');
+                    if (customHomeNamesInput && Array.isArray(data.homeNames)) customHomeNamesInput.value = data.homeNames.join(', ');
+                    if (customGroupTypeInput) customGroupTypeInput.value = data.groupType || '';
+                    if (customSpecialityTitleInput) customSpecialityTitleInput.value = data.specialityTitle || '';
+                    if (customBackgroundUrlInput) customBackgroundUrlInput.value = data.backgroundUrl || '';
+                    if (customThemeIconUrlInput) customThemeIconUrlInput.value = data.themeIconUrl || '';
+                    if (customThemeColorInput) customThemeColorInput.value = data.themeColor || '';
+                    customizableTerms.universe = data.universe || 'Fantasy';
+
+                    if (themeGeneratorContent) themeGeneratorContent.classList.add('hidden');
+                    if (customizationContent) customizationContent.classList.remove('hidden');
+                    if (rerollThemeButton) rerollThemeButton.classList.remove('hidden');
+                    if (manualCustomizationTab) manualCustomizationTab.click(); // Switch to manual tab for review
+                    showMessageModal("Theme generated! Review and save your changes.");
+
+                } else {
+                     showMessageModal('Failed to generate a theme. Please check your network and try again.');
+                }
+            
+                if (themeLoadingIndicator) themeLoadingIndicator.classList.add('hidden');
+                if (generateThemeButton) generateThemeButton.disabled = false;
+                if (rerollThemeButton) rerollThemeButton.disabled = false;
+            };
+
+            if (generateThemeButton) generateThemeButton.addEventListener('click', async () => {
+                const userUniverse = universeInput.value.trim();
+                if (!userUniverse) return;
+                await generateAndPopulateTheme(userUniverse);
+            });
+
+            if (rerollThemeButton) rerollThemeButton.addEventListener('click', async () => {
+                 const userUniverse = universeInput.value.trim();
+                 if (!userUniverse) return;
+                 await generateAndPopulateTheme(userUniverse);
+            });
+            
+            // Check if chronicle is empty to show tutorial
+            if (playerChronicle.length === 0) {
+                 if (welcomeScreen) welcomeScreen.style.display = 'flex';
+            } else {
+                initializeMainApp();
+                if (welcomeScreen) welcomeScreen.style.display = 'none';
+            }
+
+
+            setInterval(checkDailyReset, 60000);
+
+            // Add new event listeners for the new modals and buttons
+            if (document.getElementById('openManualMissionModal')) document.getElementById('openManualMissionModal').addEventListener('click', () => {
+                showModal('missionModal');
+                const aiTab = document.getElementById('aiTab');
+                const manualTab = document.getElementById('manualTab');
+                const aiMissionContent = document.getElementById('aiMissionContent');
+                const manualMissionContent = document.getElementById('manualMissionContent');
+                if (aiTab) aiTab.classList.remove('border-[#00FFD1]', 'text-white');
+                if (manualTab) manualTab.classList.add('border-[#00FFD1]', 'text-white');
+                if (aiMissionContent) aiMissionContent.classList.add('hidden');
+                if (manualMissionContent) manualMissionContent.classList.remove('hidden');
+            });
+
+            if (document.getElementById('openAIMissionModal')) document.getElementById('openAIMissionModal').addEventListener('click', () => {
+                showModal('missionModal');
+                const aiTab = document.getElementById('aiTab');
+                const manualTab = document.getElementById('manualTab');
+                const aiMissionContent = document.getElementById('aiMissionContent');
+                const manualMissionContent = document.getElementById('manualMissionContent');
+                if (manualTab) manualTab.classList.remove('border-[#00FFD1]', 'text-white');
+                if (aiTab) aiTab.classList.add('border-[#00FFD1]', 'text-white');
+                if (manualMissionContent) manualMissionContent.classList.add('hidden');
+                if (aiMissionContent) aiMissionContent.classList.remove('hidden');
+            });
+            
+            if (document.getElementById('closeMissionModal')) document.getElementById('closeMissionModal').addEventListener('click', () => {
+                hideModal('missionModal');
+            });
+            
+            if (document.getElementById('aiTab')) document.getElementById('aiTab').addEventListener('click', () => {
+                const aiMissionContent = document.getElementById('aiMissionContent');
+                const manualMissionContent = document.getElementById('manualMissionContent');
+                aiMissionContent.classList.remove('hidden');
+                manualMissionContent.classList.add('hidden');
+            });
+
+            if (document.getElementById('manualTab')) document.getElementById('manualTab').addEventListener('click', () => {
+                const aiMissionContent = document.getElementById('aiMissionContent');
+                const manualMissionContent = document.getElementById('manualMissionContent');
+                aiMissionContent.classList.add('hidden');
+                manualMissionContent.classList.remove('hidden');
+            });
+
+            if (document.getElementById('addManualMissionButton')) document.getElementById('addManualMissionButton').addEventListener('click', () => {
+                const name = document.getElementById('manualMissionName').value.trim();
+                const description = document.getElementById('manualMissionDescription').value.trim();
+                const frequency = document.getElementById('manualMissionFrequency').value;
+                const focus = document.getElementById('manualMissionFocus').value;
+                const points = parseInt(document.getElementById('manualMissionPoints').value, 10);
+                
+                if (name && description && !isNaN(points) && points > 0) {
+                    allTasks.push({ name, description, frequency, focus, points });
+                    saveState();
+                    renderTasks(frequency);
+                    renderEnergySummary();
+                    showMessageModal("New mission added!");
+                    document.getElementById('manualMissionName').value = '';
+                    document.getElementById('manualMissionDescription').value = '';
+                    document.getElementById('manualMissionPoints').value = '';
+                    // Close the modal after successful addition
+                    hideModal('missionModal');
+                } else {
+                    showMessageModal("Please fill out all fields correctly.");
+                }
+            });
+
+            if (document.getElementById('generateMissionsButton')) document.getElementById('generateMissionsButton').addEventListener('click', async () => {
+                const goalInput = document.getElementById('goalInput').value.trim();
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                if (!goalInput) {
+                    showMessageModal("Please enter your goal before generating tasks.");
+                    return;
+                }
+                
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                
+                // Updated AI prompt with new instructions
+                const prompt = `Based on the user's goal(s) "${goalInput}", generate a JSON object with a list of tasks. The JSON should have a key "tasks" which is an array of 5 to 10 task objects for each discernible goal. Distribute these tasks among "daily", "weekly", and "monthly" frequencies, with a heavier weight on daily tasks (e.g., more daily tasks than weekly or monthly). Ensure each of the following focuses are represented: "${customizableTerms.energyTypes.join('", "')}". Each task object must have keys: "name" (string, short and actionable), "description" (string, a brief explanation), "frequency" (string, one of "daily", "weekly", or "monthly"), "focus" (string, one of the energy types), and "points" (number, a positive integer). Make the points higher for less frequent tasks. Ensure the tasks are practical and directly related to achieving the user's goal.`;
+                
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "tasks": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "name": { "type": "STRING" },
+                                            "description": { "type": "STRING" },
+                                            "frequency": { "type": "STRING", "enum": ["daily", "weekly", "monthly"] },
+                                            "focus": { "type": "STRING", "enum": customizableTerms.energyTypes },
+                                            "points": { "type": "NUMBER" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                        const data = JSON.parse(result.candidates[0].content.parts[0].text);
+                        data.tasks.forEach(task => {
+                            allTasks.push(task);
+                        });
+                        saveState();
+                        renderTasks('daily');
+                        renderTasks('weekly');
+                        renderTasks('monthly');
+                        renderEnergySummary();
+                        showMessageModal("Tasks generated and added to your list!");
+                        // Close the modal after successful generation
+                        hideModal('missionModal');
+                    } else {
+                        showMessageModal("Failed to generate tasks. Please try again.");
+                    }
+                } catch (error) {
+                    console.error("Error generating tasks:", error);
+                    showMessageModal("An error occurred while generating tasks. Please try again later.");
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            });
+
+            document.body.addEventListener('click', (e) => {
+                // Find the closest parent button with the class 'task-button'
+                const taskButton = e.target.closest('.task-button');
+                if (taskButton && !taskButton.disabled) {
+                    const taskName = taskButton.dataset.taskName;
+                    const taskFocus = taskButton.dataset.taskFocus;
+                    const taskPoints = parseInt(taskButton.dataset.taskPoints, 10);
+                    
+                    energy[taskFocus] += taskPoints;
+                    lifetimeEnergy += taskPoints;
+                    completedTasks[taskName] = true;
+                    missionsCompletedSinceLastStory++;
+                    
+                    taskButton.disabled = true;
+                    taskButton.closest('.task-card').classList.add('completed');
+                    
+                    saveState();
+                    updateStoryStatus();
+                    updateImageGeneratorStatus();
+                }
+
+                if (e.target.classList.contains('delete-task-button')) {
+                    const taskName = e.target.dataset.taskName;
+                    showConfirmationModal(
+                        'Delete Task',
+                        `Are you sure you want to permanently delete "${taskName}"?`,
+                        null,
+                        () => {
+                            allTasks = allTasks.filter(task => task.name !== taskName);
+                            delete completedTasks[taskName];
+                            saveState();
+                            renderTasks('daily');
+                            renderTasks('weekly');
+                            renderTasks('monthly');
+                            renderEnergySummary();
+                        }
+                    );
+                }
+
+                if (e.target.classList.contains('redeem-reward-button')) {
+                    const rewardIndex = parseInt(e.target.dataset.rewardIndex, 10);
+                    const reward = rewards[rewardIndex];
+                    let canAfford = true;
+                    const costDetails = {};
+                    for (const type of customizableTerms.energyTypes) {
+                        costDetails[type] = reward.cost[type] || 0;
+                        if (energy[type] < costDetails[type]) {
+                            canAfford = false;
+                        }
+                    }
+
+                    if (canAfford) {
+                        showConfirmationModal(
+                            'Redeem Skill',
+                            `Are you sure you want to redeem the skill "${reward.name}"?`,
+                            costDetails,
+                            () => {
+                                for (const type of customizableTerms.energyTypes) {
+                                    energy[type] -= costDetails[type];
+                                }
+                                knownSkills.push(reward.name);
+                                rewards.splice(rewardIndex, 1);
+                                saveState();
+                                renderRewards();
+                                updateRankAndSkillDisplay();
+                                showMessageModal(`Skill unlocked: ${reward.name}!`);
+                            }
+                        );
+                    } else {
+                        showMessageModal("You don't have enough energy to unlock this skill.");
+                    }
+                }
+
+                if (e.target.classList.contains('delete-reward-button')) {
+                    const rewardIndex = parseInt(e.target.dataset.rewardIndex, 10);
+                    const rewardName = rewards[rewardIndex].name;
+                    showConfirmationModal(
+                        'Delete Skill Scroll',
+                        `Are you sure you want to delete the scroll for "${rewardName}"? This cannot be undone.`,
+                        null,
+                        () => {
+                            rewards.splice(rewardIndex, 1);
+                            saveState();
+                            renderRewards();
+                        }
+                    );
+                }
+
+                if (e.target.classList.contains('select-origin-button')) {
+                    const storyIndex = parseInt(e.target.dataset.storyIndex, 10);
+                    const originData = JSON.parse(document.getElementById('originStoryContainer').dataset.origins);
+                    const selectedOrigin = originData[storyIndex];
+
+                    characterBio = selectedOrigin;
+                    const newStory = {
+                        date: new Date().toLocaleDateString(),
+                        story: selectedOrigin.story,
+                        points: 0,
+                        arc: currentArc,
+                        chapter: currentChapterInArc
+                    };
+                    playerChronicle.push(newStory);
+                    currentChapterInArc++;
+                    saveState();
+                    
+                    document.getElementById('originStoryContainer').classList.add('hidden');
+                    showMessageModal(`Your origin story has been set! Your legend begins.`);
+                    
+                    updateStoryStatus();
+                    updateRankAndSkillDisplay();
+                    updateImageGeneratorStatus();
+                }
+
+            });
+
+            if (document.getElementById('addReward')) document.getElementById('addReward').addEventListener('click', () => {
+                const name = document.getElementById('newRewardName').value.trim();
+                const cost = {};
+                let isValid = !!name;
+                
+                customizableTerms.energyTypes.forEach(type => {
+                    const input = document.getElementById(`newReward${type.replace(/\s/g, '')}`);
+                    const value = parseInt(input.value, 10) || 0;
+                    if (value < 0) isValid = false;
+                    cost[type] = value;
+                });
+                
+                if (isValid) {
+                    rewards.push({ name, cost });
+                    saveState();
+                    renderRewards();
+                    showMessageModal("New skill scroll added!");
+                    document.getElementById('newRewardName').value = '';
+                    customizableTerms.energyTypes.forEach(type => {
+                        document.getElementById(`newReward${type.replace(/\s/g, '')}`).value = '';
+                    });
+                } else {
+                    showMessageModal("Please provide a name and valid positive energy costs for the new skill.");
+                }
+            });
+
+            ['daily', 'weekly', 'monthly'].forEach(freq => {
+                const toggleButton = document.getElementById(`toggleCompleted${freq.charAt(0).toUpperCase() + freq.slice(1)}`);
+                if(toggleButton) {
+                    toggleButton.addEventListener('click', () => {
+                        if (freq === 'daily') showCompletedDaily = !showCompletedDaily;
+                        if (freq === 'weekly') showCompletedWeekly = !showCompletedWeekly;
+                        if (freq === 'monthly') showCompletedMonthly = !showCompletedMonthly;
+                        renderTasks(freq);
+                        toggleButton.textContent = showCompletedDaily || showCompletedWeekly || showCompletedMonthly ? 'Hide Completed' : 'Show Completed';
+                    });
+                }
+            });
+
+            if (document.getElementById('openDescriptionModal')) document.getElementById('openDescriptionModal').addEventListener('click', () => {
+                const descTextarea = document.getElementById('characterDescriptionTextarea');
+                if (descTextarea) {
+                    descTextarea.value = characterDescription;
+                    showModal('descriptionModal');
+                }
+            });
+
+            if (document.getElementById('closeDescriptionModal')) document.getElementById('closeDescriptionModal').addEventListener('click', () => {
+                hideModal('descriptionModal');
+            });
+            
+            if (document.getElementById('cancelDescriptionButton')) document.getElementById('cancelDescriptionButton').addEventListener('click', () => {
+                hideModal('descriptionModal');
+            });
+
+            if (document.getElementById('saveDescriptionButton')) document.getElementById('saveDescriptionButton').addEventListener('click', () => {
+                const newDescription = document.getElementById('characterDescriptionTextarea').value.trim();
+                characterDescription = newDescription;
+                saveState();
+                updateImageGeneratorStatus();
+                showMessageModal("Character description saved!");
+                hideModal('descriptionModal');
+            });
+
+            if (recordButton) recordButton.addEventListener('click', () => {
+                if (temporaryStorySegment && temporaryChoice && temporaryOutcome) {
+                    const combinedStory = `${temporaryStorySegment}\n\n**Action:** "${temporaryChoice}"\n\n**Outcome:** ${temporaryOutcome}`;
+                    const newStory = {
+                        date: new Date().toLocaleDateString(),
+                        story: combinedStory,
+                        points: lifetimeEnergy,
+                        arc: currentArc,
+                        chapter: currentChapterInArc
+                    };
+                    playerChronicle.push(newStory);
+                    
+                    currentChapterInArc++;
+                    if (currentChapterInArc > ARC_LENGTH) {
+                        currentChapterInArc = 1;
+                        currentArc++;
+                    }
+
+                    saveState();
+                    
+                    if (storyOutput) storyOutput.innerHTML = '';
+                    if (choiceSystemContainer) choiceSystemContainer.classList.add('hidden');
+                    if (originStoryContainer) originStoryContainer.classList.add('hidden');
+                    if (recordButtonContainer) recordButtonContainer.classList.add('hidden');
+
+                    // Reset temporary variables for the next story
+                    temporaryStorySegment = null;
+                    temporaryChoice = null;
+                    temporaryOutcome = null;
+
+                    updateStoryStatus();
+                    updateImageGeneratorStatus();
+                    showMessageModal("Your legend has been recorded! Complete more tasks to continue your journey.");
+                } else {
+                    showMessageModal("No new story to record.");
+                }
+            });
+
+            if (playerImageInput) playerImageInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (playerImageDisplay) playerImageDisplay.src = e.target.result;
+                        playerImage = e.target.result;
+                        saveState();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            if (modalBackgroundUploadInput) modalBackgroundUploadInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.body.style.setProperty('--bg-image', `url('${e.target.result}')`);
+                        customizableTerms.backgroundUrl = e.target.result;
+                        saveState();
+                        showMessageModal("New background image uploaded!");
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            if (submitNameButton) submitNameButton.addEventListener('click', async () => {
+                const name = document.getElementById('startupNameInput').value.trim();
+                const description = document.getElementById('modalCharacterDescriptionTextarea').value.trim();
+                if (name) {
+                    characterName = name;
+                    playerPronouns = document.getElementById('pronounSelect').value;
+                    characterDescription = description;
+                    saveState();
+                    hideModal('namingModal');
+                    if(originNameDisplay) originNameDisplay.textContent = name;
+                    
+                    if (playerChronicle.length === 0) {
+                        await generateOriginStory(characterName);
+                    }
+                } else {
+                    showMessageModal("Please enter a name to continue.");
+                }
+            });
+            
+            if (generateStoryButton) generateStoryButton.addEventListener('click', async () => {
+                if (storyLoadingIndicator) storyLoadingIndicator.classList.remove('hidden');
+                if (generateStoryButton) generateStoryButton.disabled = true;
+                if (storyOutput) storyOutput.classList.remove('hidden');
+                if (choiceSystemContainer) choiceSystemContainer.classList.add('hidden');
+                checkPromotion();
+
+                await generateStory(characterName);
+            });
+
+            if (generateImageButton) generateImageButton.addEventListener('click', async () => {
+                const today = new Date().toDateString();
+                const lastStoryDate = new Date(lastStoryTime).toDateString();
+                const lastImageDate = new Date(lastImageTime).toDateString();
+                const hasStory = playerChronicle.length > 0;
+                const hasRecordedStoryToday = lastStoryTime && (new Date(lastStoryTime).toDateString() === today);
+                
+                if (hasStory && hasRecordedStoryToday && lastImageDate !== today) {
+                    // Passed all checks, proceed with image generation
+                } else {
+                    let message = '';
+                    if (!hasStory) {
+                        message = `You need a character description and at least one story entry to generate an image. You can enter your description by clicking the pencil icon on your ${customizableTerms.playerTitle} image.`;
+                    } else if (!hasRecordedStoryToday) {
+                         message = 'Record a story today to enable image generation.';
+                    } else if (lastImageDate === today) {
+                        message = 'You have already generated an image today. Come back tomorrow!';
+                    }
+                    showMessageModal(message);
+                    return;
+                }
+                
+                const pronouns = playerPronouns.split('/');
+                const [subjective, objective, possessive] = pronouns;
+                let clothingPrompt = '';
+                const isApprenticeOrHigher = customizableTerms.ranks.indexOf(playerRank) >= 1;
+                const isJourneymanOrHigher = customizableTerms.ranks.indexOf(playerRank) >= 2;
+
+                if (isApprenticeOrHigher) {
+                    clothingPrompt += `${subjective} is wearing a headband from the ${characterBio.home} village.`;
+                }
+                if (isJourneymanOrHigher) {
+                    clothingPrompt += `${subjective} is also wearing a standard home flak jacket.`;
+                }
+                
+                const lastStory = playerChronicle[playerChronicle.length - 1];
+                
+                const prompt = `Create a high-quality, non-comic image in the artistic style of the "${customizableTerms.universe}" universe. The central subject is a player character with the description: "${characterDescription}". The character should be in a pose that references the events of their recent adventure, which is summarized as: "${lastStory.story}". The summary or story should not be shown, just used as a reference for choosing what action to portay the character performing. The background of the image should also be a visual representation of a key moment or setting from that same story. Focus on rendering a unique character based on the description, not a pre-existing one. Do not include any text or dialogue or information.`;
+
+                if (imageLoadingIndicator) imageLoadingIndicator.classList.remove('hidden');
+                if (generateImageButton) generateImageButton.disabled = true;
+
+                const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1} };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                        generatedImageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                        const playerImageDisplay = document.getElementById('playerImageDisplay');
+                        if (playerImageDisplay) playerImageDisplay.src = generatedImageUrl;
+                        
+                        lastImageTime = new Date().getTime();
+                        saveState();
+                        
+                        if (setProfileImageButton) setProfileImageButton.classList.remove('hidden');
+
+                        showMessageModal("Your player image has been generated!");
+                    } else {
+                        throw new Error("No valid image data in API response");
+                    }
+
+                } catch (error) {
+                    console.error("Error generating image:", error);
+                    showMessageModal("Failed to generate image. Please try again later.");
+                } finally {
+                    if (imageLoadingIndicator) imageLoadingIndicator.classList.add('hidden');
+                }
+            });
+
+            if(setProfileImageButton) setProfileImageButton.addEventListener('click', () => {
+                playerImage = generatedImageUrl;
+                saveState();
+                showMessageModal("New image set as your profile picture!");
+                setProfileImageButton.classList.add('hidden');
+            });
+            
+            if (viewChronicleButton) viewChronicleButton.addEventListener('click', () => {
+                if (storyOutput) storyOutput.classList.add('hidden');
+                if (choiceSystemContainer) choiceSystemContainer.classList.add('hidden');
+                if (originStoryContainer) originStoryContainer.classList.add('hidden');
+                
+                renderChronicle();
+                showModal('chronicleModal');
+            });
+
+            if (closeChronicleModalButton) closeChronicleModalButton.addEventListener('click', () => {
+                hideModal('chronicleModal');
+            });
+
+            if(playerImageDisplay) playerImageDisplay.addEventListener('click', () => {
+                if(playerImage && playerImage !== 'https://placehold.co/150x150/073B4C/FFF?text=Your+Player') {
+                    enlargedImage.src = playerImage;
+                    showModal('imageModal');
+                }
+            });
+
+            if(imageModal) imageModal.addEventListener('click', (e) => {
+                if(e.target === imageModal || e.target === enlargedImage) {
+                    hideModal('imageModal');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
