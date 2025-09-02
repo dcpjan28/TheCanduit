@@ -255,534 +255,537 @@
     </style>
 </head>
 <body class="antialiased p-4 sm:p-8">
-    <!-- Top Bar with User Info and Logout -->
-    <div class="fixed top-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-70 z-20 flex justify-between items-center text-sm sm:text-base">
-        <div id="userInfo">
-            <span id="userStatus">Loading...</span>
+    <!-- A wrapper to initially hide content until authentication is confirmed -->
+    <div id="appContent" class="hidden">
+        <!-- Top Bar with User Info and Logout -->
+        <div class="fixed top-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-70 z-20 flex justify-between items-center text-sm sm:text-base">
+            <div id="userInfo">
+                <span id="userStatus">Loading...</span>
+            </div>
         </div>
-    </div>
-    <!-- Welcome Screen -->
-    <div id="welcomeScreen" class="fixed inset-0 bg-[#0c0c0c] flex items-center justify-center p-8 z-[3000]">
-        <div class="text-center transition-opacity duration-1000 ease-in-out">
-            <h1 class="text-6xl sm:text-7xl font-bold mb-4 theme-heading">THE CANDUIT</h1>
-            <p class="max-w-2xl text-lg text-gray-300 mx-auto leading-relaxed">
-                Welcome, initiate. The Canduit is a device that connects your consciousness with a parallel dimension, transforming your daily tasks into a grand narrative. Your hard work here fuels your progress there. Await connection...
-            </p>
-            <button id="initiateButton" class="mt-8 bg-[#00FFD1] text-black font-bold py-4 px-12 rounded-full text-lg shadow-md hover:bg-opacity-80 transition-all active:scale-95 uppercase tracking-wide">
-                Initiate Canduit
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="fixed inset-0 bg-[#0c0c0c] flex items-center justify-center p-8 z-[3000]">
+            <div class="text-center transition-opacity duration-1000 ease-in-out">
+                <h1 class="text-6xl sm:text-7xl font-bold mb-4 theme-heading">THE CANDUIT</h1>
+                <p class="max-w-2xl text-lg text-gray-300 mx-auto leading-relaxed">
+                    Welcome, initiate. The Canduit is a device that connects your consciousness with a parallel dimension, transforming your daily tasks into a grand narrative. Your hard work here fuels your progress there. Await connection...
+                </p>
+                <button id="initiateButton" class="mt-8 bg-[#00FFD1] text-black font-bold py-4 px-12 rounded-full text-lg shadow-md hover:bg-opacity-80 transition-all active:scale-95 uppercase tracking-wide">
+                    Initiate Canduit
+                </button>
+            </div>
+        </div>
+
+        <!-- Top ad space with extra margin -->
+        <div class="h-24"></div>
+
+        <header class="text-center mb-10 p-4 bg-black bg-opacity-70 rounded-lg">
+            <h1 id="appTitleDisplay" class="text-3xl sm:text-4xl md:text-5xl font-black theme-heading">The Canduit</h1>
+            <p class="mt-2 text-lg sm:text-xl text-[#00FFD1]">Mastering your Skills and becoming a Master.</p>
+            <div class="mt-4 flex flex-wrap items-center justify-center space-x-4 space-y-2 relative">
+                <div>
+                    <span class="text-2xl sm:text-3xl font-bold text-[#00FFD1]">Total Energy:</span>
+                    <span id="totalPointsDisplay" class="ml-2 text-3xl sm:text-4xl font-extrabold energy-color">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Path of the Player Storyteller -->
+        <section class="lg:col-span-3 mb-8">
+            <div id="playerPanel" class="bg-gray-900 rounded-xl shadow-lg p-6 sm:p-8">
+                <h2 id="pathHeading" class="text-2xl sm:text-3xl font-bold theme-heading text-center">Path of the <span id="playerTitleDisplay">Player</span></h2>
+                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">Track your journey and see your story unfold. Enter a character name and complete tasks to unlock your next chapter.</p>
+                <div class="flex flex-col items-center">
+                    <div class="relative group">
+                        <img id="playerImageDisplay" src="https://placehold.co/150x150/073B4C/FFF?text=Your+Player" alt="Your Player Avatar" class="player-image mb-4">
+                        <button id="openDescriptionModal" class="absolute -top-2 -right-2 bg-[#00FFD1] text-black p-2 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95" title="Edit Description">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.854.146a.5.5 0 0 0-.707 0L7.427 4.81l-4.242 4.243a.5.5 0 0 0-.138.287l-.634 3.17a.5.5 0 0 0 .634.634l3.17-.634a.5.5 0 0 0 .287-.138l4.243-4.242 4.661-4.661a.5.5 0 0 0 0-.707l-2.122-2.122a.5.5 0 0 0-.707 0zM11.666 3.19l1.414 1.414-3.535 3.536-1.414-1.414 3.535-3.536z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="playerImageInput" accept="image/*" class="hidden">
+                    <label for="playerImageInput" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md cursor-pointer hover:bg-opacity-90 transition-all active:scale-95 mb-4">
+                        Choose Your <span id="playerTitleDisplay2">Player</span>'s Image
+                    </label>
+                    
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-200">Name: <span id="characterNameDisplay" class="energy-color"></span></p>
+                    </div>
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-200">Rank: <span id="playerRankDisplay" class="energy-color">Novice</span></p>
+                    </div>
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-200">Arc Progress: <span id="arcIndicatorDisplay" class="energy-color">N/A</span></p>
+                    </div>
+
+                    <div id="imageGeneratorSection" class="mt-6 flex flex-col items-center hidden">
+                        <h4 class="text-md font-bold mb-2 theme-heading">Create Your <span id="playerTitleDisplay3">Player</span>'s Scene</h4>
+                        <p id="imageStatus" class="mb-4 text-sm text-gray-400">Generate a visual of your latest adventure!</p>
+                        <div class="flex space-x-4">
+                            <button id="generateImageButton" class="bg-[#0077B6] text-white font-bold py-3 px-6 rounded-full shadow-md cursor-not-allowed" disabled>Generate Player Image</button>
+                            <button id="setProfileImageButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hidden" disabled>Set as Profile Image</button>
+                        </div>
+                        <div id="imageLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                            <div class="loading-spinner mr-2"></div>
+                            Summoning your image...
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4 class="text-md font-bold mb-2 text-gray-200 theme-heading">Known <span id="skillTitleDisplay">Skills</span>:</h4>
+                        <ul id="skillList" class="text-sm text-gray-300 space-y-1">
+                            <!-- Skills will be rendered here -->
+                        </ul>
+                    </div>
+                    <div class="flex space-x-4 mt-6">
+                        <button id="generateStoryButton" class="bg-gray-400 text-white font-bold py-3 px-6 rounded-full shadow-md cursor-not-allowed" disabled>Reveal Your Story</button>
+                        <button id="viewChronicleButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">View Chronicle</button>
+                    </div>
+                    <p id="storyStatus" class="mt-4 text-center text-sm text-gray-400">Complete 5 tasks and wait 24 hours to generate your first story segment.</p>
+                    <div id="storyLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                        <div class="loading-spinner mr-2"></div>
+                        Unrolling the scroll...
+                    </div>
+                    <div class="text-center mt-8">
+                        <a href="https://www.patreon.com/c/TheCanduit" target="_blank" class="text-[#00FFD1] hover:text-white transition-colors duration-200">
+                            <span class="material-symbols-outlined align-middle">soup_kitchen</span> Support on Patreon
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto scroll-container">
+            
+            <!-- Theme Icons Section -->
+            <div id="themeIconContainer" class="lg:col-span-3 mb-8 relative">
+            </div>
+
+            <!-- Daily Tasks Section -->
+            <section>
+                <div id="dailyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="dailyTasksHeading">Daily Tasks</h2>
+                        <button id="toggleDailyTasks" class="collapse-toggle text-gray-400 hover:text-white transition-colors">
+                            <svg id="dailyTasksIcon" class="w-6 h-6 collapse-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="dailyTasks" class="grid grid-cols-1 md:grid-cols-1 gap-4 collapsible-content">
+                        <!-- Dynamic content or fallback message -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Weekly and Monthly Tasks Sections -->
+            <div class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section>
+                    <div id="weeklyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="weeklyTasksHeading">Weekly Tasks</h2>
+                            <button id="toggleWeeklyTasks" class="collapse-toggle text-gray-400 hover:text-white transition-colors">
+                                <svg id="weeklyTasksIcon" class="w-6 h-6 collapse-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="weeklyTasks" class="space-y-4 flex-grow collapsible-content">
+                            <!-- Dynamic content or fallback message -->
+                        </div>
+                    </div>
+                </section>
+                
+                <section>
+                    <div id="monthlyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="monthlyTasksHeading">Monthly Tasks</h2>
+                            <button id="toggleMonthlyTasks" class="collapse-toggle text-gray-400 hover:text-white transition-colors">
+                                <svg id="monthlyTasksIcon" class="w-6 h-6 collapse-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="monthlyTasks" class="space-y-4 flex-grow collapsible-content">
+                            <!-- Dynamic content or fallback message -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+        </main>
+
+        <!-- Skill Scrolls Section -->
+        <section id="skillsPanel" class="mt-8 lg:col-span-3">
+            <div class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="skillSectionHeading" class="text-2xl sm:text-3xl font-bold theme-heading">Skills Actions</h2>
+                    
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="p-4 bg-gray-900 rounded-lg">
+                        <h3 id="createSkillHeading" class="text-xl font-bold theme-heading mb-4">Create New Skill</h3>
+                        <div id="missionEnergySummary" class="bg-gray-800 p-3 rounded-lg mb-4 text-gray-200">
+                            <h4 class="text-md font-bold mb-2">Potential Energy Gains</h4>
+                            <div id="missionEnergySummaryContent" class="grid grid-cols-1 lg:grid-cols-3 gap-2 text-sm text-left">
+                                <!-- Mission energy stats will be rendered here -->
+                            </div>
+                        </div>
+                        <input type="text" id="newRewardName" placeholder="New Skill to Unlock" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none mb-2 bg-gray-800 text-white">
+                        <div id="newSkillCostInputs" class="grid grid-cols-2 gap-2 mb-2">
+                            <!-- Energy costs inputs will be rendered here -->
+                        </div>
+                        <button id="addReward" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Add Skill</button>
+                    </div>
+                    <div class="p-4 bg-gray-900 rounded-lg">
+                        <h3 id="availableScrollsHeading" class="text-xl font-bold theme-heading mb-4">Available Actions</h3>
+                        <div id="currentEnergySummary" class="bg-gray-800 p-3 rounded-lg mb-4 text-gray-200">
+                            <h4 class="md font-bold mb-2">Current Energy</h4>
+                            <div id="currentEnergySummaryContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-left">
+                                <!-- Current energy stats will be rendered here -->
+                            </div>
+                        </div>
+                        <ul id="rewardsList" class="space-y-3">
+                            <!-- Rewards will be rendered here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Floating action buttons at the bottom right -->
+        <div class="action-buttons-container">
+            <!-- Add Task -->
+            <button id="openManualMissionModal" class="action-button bg-[#0077B6] text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="black" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+            </button>
+            <!-- AI Mission -->
+            <button id="openAIMissionModal" class="action-button bg-[#00FFD1] text-black">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </button>
+            <!-- Theme Customization -->
+            <button id="openCustomizationFromMain" class="action-button bg-orange-400 text-white">
+                <span class="material-symbols-outlined text-black">deployed_code_alert</span>
+            </button>
+            <!-- Master Reset -->
+            <button id="masterResetButton" class="action-button bg-[#FF0055] text-white">
+                <span class="material-symbols-outlined text-black">add_triangle</span>
+            </button>
+            <!-- Session and Save Button -->
+            <button id="openLogoutModalButton" class="action-button bg-gray-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-power">
+                    <path d="M12 2v10"/>
+                    <path d="M18.4 6.6a9 9 0 1 1-12.8 0"/>
+                </svg>
             </button>
         </div>
-    </div>
 
-    <!-- Top ad space with extra margin -->
-    <div class="h-24"></div>
-
-    <header class="text-center mb-10 p-4 bg-black bg-opacity-70 rounded-lg">
-        <h1 id="appTitleDisplay" class="text-3xl sm:text-4xl md:text-5xl font-black theme-heading">The Canduit</h1>
-        <p class="mt-2 text-lg sm:text-xl text-[#00FFD1]">Mastering your Skills and becoming a Master.</p>
-        <div class="mt-4 flex flex-wrap items-center justify-center space-x-4 space-y-2 relative">
-            <div>
-                <span class="text-2xl sm:text-3xl font-bold text-[#00FFD1]">Total Energy:</span>
-                <span id="totalPointsDisplay" class="ml-2 text-3xl sm:text-4xl font-extrabold energy-color">0</span>
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="modal">
+            <div class="modal-content max-w-xl text-white">
+                <h3 id="tutorialTitle" class="text-2xl font-bold mb-4 text-center theme-heading">Tutorial</h3>
+                <p id="tutorialText" class="text-sm text-gray-300 mb-4"></p>
+                <div class="flex justify-between">
+                    <button id="prevTutorial" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-all">Previous</button>
+                    <button id="nextTutorial" class="bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-80 transition-all active:scale-95">Next</button>
+                </div>
             </div>
         </div>
-    </header>
 
-    <!-- Path of the Player Storyteller -->
-    <section class="lg:col-span-3 mb-8">
-        <div id="playerPanel" class="bg-gray-900 rounded-xl shadow-lg p-6 sm:p-8">
-            <h2 id="pathHeading" class="text-2xl sm:text-3xl font-bold theme-heading text-center">Path of the <span id="playerTitleDisplay">Player</span></h2>
-            <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">Track your journey and see your story unfold. Enter a character name and complete tasks to unlock your next chapter.</p>
-            <div class="flex flex-col items-center">
-                <div class="relative group">
-                    <img id="playerImageDisplay" src="https://placehold.co/150x150/073B4C/FFF?text=Your+Player" alt="Your Player Avatar" class="player-image mb-4">
-                    <button id="openDescriptionModal" class="absolute -top-2 -right-2 bg-[#00FFD1] text-black p-2 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95" title="Edit Description">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M12.854.146a.5.5 0 0 0-.707 0L7.427 4.81l-4.242 4.243a.5.5 0 0 0-.138.287l-.634 3.17a.5.5 0 0 0 .634.634l3.17-.634a.5.5 0 0 0 .287-.138l4.243-4.242 4.661-4.661a.5.5 0 0 0 0-.707l-2.122-2.122a.5.5 0 0 0-.707 0zM11.666 3.19l1.414 1.414-3.535 3.536-1.414-1.414 3.535-3.536z"/>
-                        </svg>
-                    </button>
+        <!-- Message Modal -->
+        <div id="messageModal" class="modal">
+            <div class="modal-content text-white">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold theme-heading">Message</h3>
+                    <button id="closeMessage" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
                 </div>
-                
-                <input type="file" id="playerImageInput" accept="image/*" class="hidden">
-                <label for="playerImageInput" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md cursor-pointer hover:bg-opacity-90 transition-all active:scale-95 mb-4">
-                    Choose Your <span id="playerTitleDisplay2">Player</span>'s Image
-                </label>
-                
-                <div class="text-center mt-2">
-                    <p class="text-lg font-bold text-gray-200">Name: <span id="characterNameDisplay" class="energy-color"></span></p>
-                </div>
-                <div class="text-center mt-2">
-                    <p class="text-lg font-bold text-gray-200">Rank: <span id="playerRankDisplay" class="energy-color">Novice</span></p>
-                </div>
-                <div class="text-center mt-2">
-                    <p class="text-lg font-bold text-gray-200">Arc Progress: <span id="arcIndicatorDisplay" class="energy-color">N/A</span></p>
-                </div>
-
-                <div id="imageGeneratorSection" class="mt-6 flex flex-col items-center hidden">
-                    <h4 class="text-md font-bold mb-2 theme-heading">Create Your <span id="playerTitleDisplay3">Player</span>'s Scene</h4>
-                    <p id="imageStatus" class="mb-4 text-sm text-gray-400">Generate a visual of your latest adventure!</p>
-                    <div class="flex space-x-4">
-                        <button id="generateImageButton" class="bg-[#0077B6] text-white font-bold py-3 px-6 rounded-full shadow-md cursor-not-allowed" disabled>Generate Player Image</button>
-                        <button id="setProfileImageButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hidden" disabled>Set as Profile Image</button>
-                    </div>
-                    <div id="imageLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
-                        <div class="loading-spinner mr-2"></div>
-                        Summoning your image...
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <h4 class="text-md font-bold mb-2 text-gray-200 theme-heading">Known <span id="skillTitleDisplay">Skills</span>:</h4>
-                    <ul id="skillList" class="text-sm text-gray-300 space-y-1">
-                        <!-- Skills will be rendered here -->
-                    </ul>
-                </div>
-                <div class="flex space-x-4 mt-6">
-                    <button id="generateStoryButton" class="bg-gray-400 text-white font-bold py-3 px-6 rounded-full shadow-md cursor-not-allowed" disabled>Reveal Your Story</button>
-                    <button id="viewChronicleButton" class="bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">View Chronicle</button>
-                </div>
-                <p id="storyStatus" class="mt-4 text-center text-sm text-gray-400">Complete 5 tasks and wait 24 hours to generate your first story segment.</p>
-                <div id="storyLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
-                    <div class="loading-spinner mr-2"></div>
-                    Unrolling the scroll...
-                </div>
-                <div class="text-center mt-8">
-                    <a href="https://www.patreon.com/c/TheCanduit" target="_blank" class="text-[#00FFD1] hover:text-white transition-colors duration-200">
-                        <span class="material-symbols-outlined align-middle">soup_kitchen</span> Support on Patreon
-                    </a>
-                </div>
+                <p id="messageText" class="text-center text-gray-300 mb-6"></p>
+                <button id="messageOkButton" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">OK</button>
             </div>
-        </section>
-
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto scroll-container">
-        
-        <!-- Theme Icons Section -->
-        <div id="themeIconContainer" class="lg:col-span-3 mb-8 relative">
-        </div>
-
-        <!-- Daily Tasks Section -->
-        <section>
-            <div id="dailyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="dailyTasksHeading">Daily Tasks</h2>
-                    <button id="toggleDailyTasks" class="collapse-toggle text-gray-400 hover:text-white transition-colors">
-                        <svg id="dailyTasksIcon" class="w-6 h-6 collapse-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                </div>
-                <div id="dailyTasks" class="grid grid-cols-1 md:grid-cols-1 gap-4 collapsible-content">
-                    <!-- Dynamic content or fallback message -->
-                </div>
-            </div>
-        </section>
-        
-        <!-- Weekly and Monthly Tasks Sections -->
-        <div class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <section>
-                <div id="weeklyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8 h-full flex flex-col">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="weeklyTasksHeading">Weekly Tasks</h2>
-                        <button id="toggleWeeklyTasks" class="collapse-toggle text-gray-400 hover:text-white transition-colors">
-                            <svg id="weeklyTasksIcon" class="w-6 h-6 collapse-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="weeklyTasks" class="space-y-4 flex-grow collapsible-content">
-                        <!-- Dynamic content or fallback message -->
-                    </div>
-                </div>
-            </section>
-            
-            <section>
-                <div id="monthlyTasksPanel" class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8 h-full flex flex-col">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl sm:text-3xl font-bold theme-heading" id="monthlyTasksHeading">Monthly Tasks</h2>
-                        <button id="toggleMonthlyTasks" class="collapse-toggle text-gray-400 hover:text-white transition-colors">
-                            <svg id="monthlyTasksIcon" class="w-6 h-6 collapse-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="monthlyTasks" class="space-y-4 flex-grow collapsible-content">
-                        <!-- Dynamic content or fallback message -->
-                    </div>
-                </div>
-            </section>
         </div>
         
-    </main>
-
-    <!-- Skill Scrolls Section -->
-    <section id="skillsPanel" class="mt-8 lg:col-span-3">
-        <div class="bg-[#2b2b2b] rounded-xl shadow-lg p-6 sm:p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="skillSectionHeading" class="text-2xl sm:text-3xl font-bold theme-heading">Skills Actions</h2>
-                
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content text-white">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="confirmationTitle" class="text-2xl font-bold theme-heading">Confirm Action</h3>
+                    <button onclick="hideModal('confirmationModal');" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+                </div>
+                <p id="confirmationMessage" class="text-center text-gray-300 mb-6"></p>
+                <div id="skillCostDisplay" class="text-sm text-gray-300 mb-4"></div>
+                <div class="flex space-x-4 justify-center">
+                    <button id="confirmAction" class="bg-[#FF0055] text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Confirm</button>
+                    <button id="cancelAction" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-all">Cancel</button>
+                </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="p-4 bg-gray-900 rounded-lg">
-                    <h3 id="createSkillHeading" class="text-xl font-bold theme-heading mb-4">Create New Skill</h3>
-                    <div id="missionEnergySummary" class="bg-gray-800 p-3 rounded-lg mb-4 text-gray-200">
-                        <h4 class="text-md font-bold mb-2">Potential Energy Gains</h4>
-                        <div id="missionEnergySummaryContent" class="grid grid-cols-1 lg:grid-cols-3 gap-2 text-sm text-left">
-                            <!-- Mission energy stats will be rendered here -->
+        </div>
+        
+        <!-- Image Modal for full-screen view -->
+        <div id="imageModal" class="fullscreen-image-modal">
+            <div class="relative max-w-[90%] max-h-[90%]">
+                <img id="enlargedImage" class="fullscreen-image" src="" alt="Enlarged Player Image">
+                <button id="saveImageButton" class="absolute bottom-4 right-4 bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save Image</button>
+            </div>
+            <button id="closeImageModal" class="absolute top-4 right-4 text-gray-200 text-4xl hover:text-red-500 font-bold">&times;</button>
+        </div>
+
+        <!-- Support Modal (Patreon) -->
+        <div id="supportModal" class="modal">
+            <div class="modal-content text-white max-w-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold theme-heading">Keep the Adventure Going!</h3>
+                    <button id="closeSupportModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+                </div>
+                <p class="text-center text-gray-300 mb-6">
+                    The Canduit is forging your destiny. If you enjoy your journey, consider supporting us on Patreon! Your support helps keep the magic alive.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="https://www.patreon.com/c/TheCanduit" target="_blank" class="bg-[#FF0055] text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Support on Patreon</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Character Description Modal -->
+        <div id="descriptionModal" class="modal">
+            <div class="modal-content text-white">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold theme-heading">Edit Character Description</h3>
+                    <button id="closeDescriptionModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+                </div>
+                <textarea id="characterDescriptionTextarea" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="5" placeholder="Describe your character and their personality to bring them to life..."></textarea>
+                
+                <div class="mt-6 border-t border-gray-700 pt-6">
+                    <h4 class="text-xl font-bold mb-4 theme-heading">Appearance & World</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="modalBackgroundUploadInput" class="block text-sm font-bold text-gray-300 mb-2">Upload New Background Image</label>
+                            <input type="file" id="modalBackgroundUploadInput" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none bg-gray-800 text-white" accept="image/*">
                         </div>
                     </div>
-                    <input type="text" id="newRewardName" placeholder="New Skill to Unlock" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none mb-2 bg-gray-800 text-white">
-                    <div id="newSkillCostInputs" class="grid grid-cols-2 gap-2 mb-2">
-                        <!-- Energy costs inputs will be rendered here -->
-                    </div>
-                    <button id="addReward" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Add Skill</button>
                 </div>
-                <div class="p-4 bg-gray-900 rounded-lg">
-                    <h3 id="availableScrollsHeading" class="text-xl font-bold theme-heading mb-4">Available Actions</h3>
-                    <div id="currentEnergySummary" class="bg-gray-800 p-3 rounded-lg mb-4 text-gray-200">
-                        <h4 class="md font-bold mb-2">Current Energy</h4>
-                        <div id="currentEnergySummaryContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-left">
-                            <!-- Current energy stats will be rendered here -->
-                        </div>
-                    </div>
-                    <ul id="rewardsList" class="space-y-3">
-                        <!-- Rewards will be rendered here -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Floating action buttons at the bottom right -->
-    <div class="action-buttons-container">
-        <!-- Add Task -->
-        <button id="openManualMissionModal" class="action-button bg-[#0077B6] text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="black" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-            </svg>
-        </button>
-        <!-- AI Mission -->
-        <button id="openAIMissionModal" class="action-button bg-[#00FFD1] text-black">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-        </button>
-        <!-- Theme Customization -->
-        <button id="openCustomizationFromMain" class="action-button bg-orange-400 text-white">
-            <span class="material-symbols-outlined text-black">deployed_code_alert</span>
-        </button>
-        <!-- Master Reset -->
-        <button id="masterResetButton" class="action-button bg-[#FF0055] text-white">
-            <span class="material-symbols-outlined text-black">add_triangle</span>
-        </button>
-        <!-- Session and Save Button -->
-        <button id="openLogoutModalButton" class="action-button bg-gray-500 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-power">
-                <path d="M12 2v10"/>
-                <path d="M18.4 6.6a9 9 0 1 1-12.8 0"/>
-            </svg>
-        </button>
-    </div>
-
-    <!-- Tutorial Modal -->
-    <div id="tutorialModal" class="modal">
-        <div class="modal-content max-w-xl text-white">
-            <h3 id="tutorialTitle" class="text-2xl font-bold mb-4 text-center theme-heading">Tutorial</h3>
-            <p id="tutorialText" class="text-sm text-gray-300 mb-4"></p>
-            <div class="flex justify-between">
-                <button id="prevTutorial" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-all">Previous</button>
-                <button id="nextTutorial" class="bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-80 transition-all active:scale-95">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Message Modal -->
-    <div id="messageModal" class="modal">
-        <div class="modal-content text-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold theme-heading">Message</h3>
-                <button id="closeMessage" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-            <p id="messageText" class="text-center text-gray-300 mb-6"></p>
-            <button id="messageOkButton" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">OK</button>
-        </div>
-    </div>
-    
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content text-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="confirmationTitle" class="text-2xl font-bold theme-heading">Confirm Action</h3>
-                <button onclick="hideModal('confirmationModal');" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-            <p id="confirmationMessage" class="text-center text-gray-300 mb-6"></p>
-            <div id="skillCostDisplay" class="text-sm text-gray-300 mb-4"></div>
-            <div class="flex space-x-4 justify-center">
-                <button id="confirmAction" class="bg-[#FF0055] text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Confirm</button>
-                <button id="cancelAction" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-all">Cancel</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Image Modal for full-screen view -->
-    <div id="imageModal" class="fullscreen-image-modal">
-        <div class="relative max-w-[90%] max-h-[90%]">
-            <img id="enlargedImage" class="fullscreen-image" src="" alt="Enlarged Player Image">
-            <button id="saveImageButton" class="absolute bottom-4 right-4 bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save Image</button>
-        </div>
-        <button id="closeImageModal" class="absolute top-4 right-4 text-gray-200 text-4xl hover:text-red-500 font-bold">&times;</button>
-    </div>
-
-    <!-- Support Modal (Patreon) -->
-    <div id="supportModal" class="modal">
-        <div class="modal-content text-white max-w-lg">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold theme-heading">Keep the Adventure Going!</h3>
-                <button id="closeSupportModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-            <p class="text-center text-gray-300 mb-6">
-                The Canduit is forging your destiny. If you enjoy your journey, consider supporting us on Patreon! Your support helps keep the magic alive.
-            </p>
-            <div class="flex justify-center space-x-4">
-                <a href="https://www.patreon.com/c/TheCanduit" target="_blank" class="bg-[#FF0055] text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Support on Patreon</a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Character Description Modal -->
-    <div id="descriptionModal" class="modal">
-        <div class="modal-content text-white">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold theme-heading">Edit Character Description</h3>
-                <button id="closeDescriptionModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-            <textarea id="characterDescriptionTextarea" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="5" placeholder="Describe your character and their personality to bring them to life..."></textarea>
-            
-            <div class="mt-6 border-t border-gray-700 pt-6">
-                <h4 class="text-xl font-bold mb-4 theme-heading">Appearance & World</h4>
-                <div class="space-y-4">
-                    <div>
-                        <label for="modalBackgroundUploadInput" class="block text-sm font-bold text-gray-300 mb-2">Upload New Background Image</label>
-                        <input type="file" id="modalBackgroundUploadInput" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none bg-gray-800 text-white" accept="image/*">
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex space-x-4 justify-center mt-4">
-                <button id="saveDescriptionButton" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save</button>
-                <button id="cancelDescriptionButton" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-500 transition-all active:scale-95">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Theme Customization Modal -->
-    <div id="customizationModal" class="modal">
-        <div class="modal-content text-white max-w-xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold theme-heading">Customize Your Experience</h3>
-                <button id="closeCustomizationModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-            <div class="border-b border-gray-700 mb-4">
-                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button id="themeGeneratorTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">AI Generator</button>
-                    <button id="manualCustomizationTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">Manual</button>
-                </nav>
-            </div>
-            <div id="themeGeneratorContent">
-                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">Enter the name of a fictional universe or theme you love, and I'll establish a link to that world. For example: "a fantasy realm," "a futuristic city," or "a detective story."</p>
-                <div class="flex flex-col items-center space-y-4">
-                    <input type="text" id="universeInput" placeholder="e.g. fantasy realm, futuristic city, etc." class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
-                    <button id="generateThemeButton" class="w-full bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Generate Theme</button>
-                    <div id="themeLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
-                        <div class="loading-spinner mr-2"></div>
-                        Unleashing the creative spirit...
-                    </div>
-                </div>
-            </div>
-            <div id="customizationContent" class="hidden">
-                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">You can manually edit the theme here. Be sure to save your changes to apply them. **The values you provide here are essential for the AI to generate accurate stories about your character. For the most immersive experience, ensure your details are as specific as possible.**</p>
-                <div class="space-y-4 overflow-y-auto max-h-96 pr-4">
-                    <div class="flex items-center space-x-2">
-                        <label for="customAppTitle" class="text-sm font-bold w-1/4">App Name:</label>
-                        <input type="text" id="customAppTitle" placeholder="e.g., The Canduit" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customPlayerTitle" class="text-sm font-bold w-1/4">Player Title:</label>
-                        <input type="text" id="customPlayerTitle" placeholder="e.g., Player, Hero, Shinobi" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customMasterTitle" class="text-sm font-bold w-1/4">AI Title:</label>
-                        <input type="text" id="customMasterTitle" placeholder="e.g., Master, Sensei, Oracle" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customSkillSectionTitle" class="text-sm font-bold w-1/4">Skills Title:</label>
-                        <input type="text" id="customSkillSectionTitle" placeholder="e.g., Skills, Jutsu, Quirks" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customTaskTitle" class="text-sm font-bold w-1/4">Task Title:</label>
-                        <input type="text" id="customTaskTitle" placeholder="e.g., Task, Mission, Quest" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customGroupType" class="text-sm font-bold w-1/4">Group Type:</label>
-                        <input type="text" id="customGroupType" placeholder="e.g., Clan, House, Faction" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customSpecialityTitle" class="text-sm font-bold w-1/4">Specialty Title:</label>
-                        <input type="text" id="customSpecialityTitle" placeholder="e.g., Element, Discipline, Hobby" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customRanks" class="text-sm font-bold w-1/4">Ranks (comma-separated):</label>
-                        <input type="text" id="customRanks" placeholder="e.g., Novice, Apprentice, Journeyman, Master" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customEnergyTypes" class="text-sm font-bold w-1/4">Energy Types (comma-separated):</label>
-                        <input type="text" id="customEnergyTypes" placeholder="e.g., Energy 1, Stamina, Chakra, Mana" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customHomeNames" class="text-sm font-bold w-1/4">Homes (comma-separated):</label>
-                        <input type="text" id="customHomeNames" placeholder="e.g., Hometown, The City, The Mountains" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                    <div>
-                        <label for="customBackgroundUploadInput" class="block text-sm font-bold text-gray-300 mb-2">Upload Background Image</label>
-                        <input type="file" id="customBackgroundUploadInput" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none bg-gray-800 text-white" accept="image/*">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="customThemeColor" class="text-sm font-bold w-1/4">Theme Color (hex):</label>
-                        <input type="text" id="customThemeColor" placeholder="e.g., #00FFD1" class="w-full p-2 rounded-md bg-gray-800 text-white">
-                    </div>
-                </div>
                 <div class="flex space-x-4 justify-center mt-4">
-                    <button id="saveCustomizationButton" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save Theme</button>
-                    <button id="cancelCustomizationButton" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-500 transition-all active:scale-95">Cancel</button>
+                    <button id="saveDescriptionButton" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save</button>
+                    <button id="cancelDescriptionButton" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-500 transition-all active:scale-95">Cancel</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Mission Management Modal -->
-    <div id="missionModal" class="modal">
-        <div class="modal-content max-w-xl text-white">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold theme-heading" id="missionModalTitle">Manage Missions</h3>
-                <button id="closeMissionModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-
-            <div class="border-b border-gray-700 mb-4">
-                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button id="aiTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">AI Master</button>
-                    <button id="manualTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">Add Mission</button>
-                </nav>
-            </div>
-            
-            <div id="aiMissionContent">
-                <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">What are your goals, dreams, and aspirations? Tell the Master, and a special mission will be generated to guide you.</p>
-                <div class="flex flex-col items-center space-y-4">
-                    <textarea id="goalInput" class="w-full max-w-xl p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="3" placeholder="Example: Become a debt-free homeowner"></textarea>
-                    <button id="generateMissionsButton" class="w-full max-w-xl bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Generate Tasks Plan</button>
-                    <div id="loadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
-                        <div class="loading-spinner mr-2"></div>
-                        Generating your tasks...
+        <!-- Theme Customization Modal -->
+        <div id="customizationModal" class="modal">
+            <div class="modal-content text-white max-w-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold theme-heading">Customize Your Experience</h3>
+                    <button id="closeCustomizationModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+                </div>
+                <div class="border-b border-gray-700 mb-4">
+                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        <button id="themeGeneratorTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">AI Generator</button>
+                        <button id="manualCustomizationTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">Manual</button>
+                    </nav>
+                </div>
+                <div id="themeGeneratorContent">
+                    <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">Enter the name of a fictional universe or theme you love, and I'll establish a link to that world. For example: "a fantasy realm," "a futuristic city," or "a detective story."</p>
+                    <div class="flex flex-col items-center space-y-4">
+                        <input type="text" id="universeInput" placeholder="e.g. fantasy realm, futuristic city, etc." class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
+                        <button id="generateThemeButton" class="w-full bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Generate Theme</button>
+                        <div id="themeLoadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                            <div class="loading-spinner mr-2"></div>
+                            Unleashing the creative spirit...
+                        </div>
+                    </div>
+                </div>
+                <div id="customizationContent" class="hidden">
+                    <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">You can manually edit the theme here. Be sure to save your changes to apply them. **The values you provide here are essential for the AI to generate accurate stories about your character. For the most immersive experience, ensure your details are as specific as possible.**</p>
+                    <div class="space-y-4 overflow-y-auto max-h-96 pr-4">
+                        <div class="flex items-center space-x-2">
+                            <label for="customAppTitle" class="text-sm font-bold w-1/4">App Name:</label>
+                            <input type="text" id="customAppTitle" placeholder="e.g., The Canduit" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customPlayerTitle" class="text-sm font-bold w-1/4">Player Title:</label>
+                            <input type="text" id="customPlayerTitle" placeholder="e.g., Player, Hero, Shinobi" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customMasterTitle" class="text-sm font-bold w-1/4">AI Title:</label>
+                            <input type="text" id="customMasterTitle" placeholder="e.g., Master, Sensei, Oracle" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customSkillSectionTitle" class="text-sm font-bold w-1/4">Skills Title:</label>
+                            <input type="text" id="customSkillSectionTitle" placeholder="e.g., Skills, Jutsu, Quirks" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customTaskTitle" class="text-sm font-bold w-1/4">Task Title:</label>
+                            <input type="text" id="customTaskTitle" placeholder="e.g., Task, Mission, Quest" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customGroupType" class="text-sm font-bold w-1/4">Group Type:</label>
+                            <input type="text" id="customGroupType" placeholder="e.g., Clan, House, Faction" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customSpecialityTitle" class="text-sm font-bold w-1/4">Specialty Title:</label>
+                            <input type="text" id="customSpecialityTitle" placeholder="e.g., Element, Discipline, Hobby" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customRanks" class="text-sm font-bold w-1/4">Ranks (comma-separated):</label>
+                            <input type="text" id="customRanks" placeholder="e.g., Novice, Apprentice, Journeyman, Master" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customEnergyTypes" class="text-sm font-bold w-1/4">Energy Types (comma-separated):</label>
+                            <input type="text" id="customEnergyTypes" placeholder="e.g., Energy 1, Stamina, Chakra, Mana" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customHomeNames" class="text-sm font-bold w-1/4">Homes (comma-separated):</label>
+                            <input type="text" id="customHomeNames" placeholder="e.g., Hometown, The City, The Mountains" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                        <div>
+                            <label for="customBackgroundUploadInput" class="block text-sm font-bold text-gray-300 mb-2">Upload Background Image</label>
+                            <input type="file" id="customBackgroundUploadInput" class="w-full p-2 border-2 rounded-md focus:border-[#00FFD1] focus:outline-none bg-gray-800 text-white" accept="image/*">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="customThemeColor" class="text-sm font-bold w-1/4">Theme Color (hex):</label>
+                            <input type="text" id="customThemeColor" placeholder="e.g., #00FFD1" class="w-full p-2 rounded-md bg-gray-800 text-white">
+                        </div>
+                    </div>
+                    <div class="flex space-x-4 justify-center mt-4">
+                        <button id="saveCustomizationButton" class="bg-[#00FFD1] text-black font-bold py-2 px-4 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Save Theme</button>
+                        <button id="cancelCustomizationButton" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-gray-500 transition-all active:scale-95">Cancel</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="manualMissionContent" class="hidden">
-                <div class="flex flex-col items-center space-y-4">
-                    <input type="text" id="manualMissionName" placeholder="Task Name" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
-                    <textarea id="manualMissionDescription" placeholder="Short Task Description" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="2"></textarea>
-                    <div class="w-full grid grid-cols-2 gap-4">
-                        <select id="manualMissionFrequency" class="w-full p-3 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] bg-gray-900 text-white">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
+        <!-- Mission Management Modal -->
+        <div id="missionModal" class="modal">
+            <div class="modal-content max-w-xl text-white">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold theme-heading" id="missionModalTitle">Manage Missions</h3>
+                    <button id="closeMissionModal" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+                </div>
+
+                <div class="border-b border-gray-700 mb-4">
+                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        <button id="aiTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">AI Master</button>
+                        <button id="manualTab" class="py-2 px-1 text-center font-medium text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent hover:border-gray-500">Add Mission</button>
+                    </nav>
+                </div>
+                
+                <div id="aiMissionContent">
+                    <p class="text-center text-gray-300 mb-6 max-w-2xl mx-auto">What are your goals, dreams, and aspirations? Tell the Master, and a special mission will be generated to guide you.</p>
+                    <div class="flex flex-col items-center space-y-4">
+                        <textarea id="goalInput" class="w-full max-w-xl p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="3" placeholder="Example: Become a debt-free homeowner"></textarea>
+                        <button id="generateMissionsButton" class="w-full max-w-xl bg-[#00FFD1] text-black font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Generate Tasks Plan</button>
+                        <div id="loadingIndicator" class="hidden mt-4 text-gray-400 flex items-center">
+                            <div class="loading-spinner mr-2"></div>
+                            Generating your tasks...
+                        </div>
+                    </div>
+                </div>
+
+                <div id="manualMissionContent" class="hidden">
+                    <div class="flex flex-col items-center space-y-4">
+                        <input type="text" id="manualMissionName" placeholder="Task Name" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
+                        <textarea id="manualMissionDescription" placeholder="Short Task Description" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" rows="2"></textarea>
+                        <div class="w-full grid grid-cols-2 gap-4">
+                            <select id="manualMissionFrequency" class="w-full p-3 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] bg-gray-900 text-white">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                            <select id="manualMissionFocus" class="w-full p-3 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] bg-gray-900 text-white">
+                                <option value="Energy 1">Energy 1</option>
+                                <option value="Energy 2">Energy 2</option>
+                                <option value="Energy 3">Energy 3</option>
+                                <option value="Energy 4">Energy 4</option>
+                                <option value="Energy 5">Energy 5</option>
+                            </select>
+                        </div>
+                        <input type="number" id="manualMissionPoints" placeholder="Energy Points" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
+                        <button id="addManualMissionButton" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Add Task</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Naming Modal -->
+        <div id="namingModal" class="modal">
+            <div class="modal-content text-white max-w-xl">
+                <h3 class="text-2xl font-bold mb-4 text-center theme-heading">Begin Your Journey</h3>
+                <p class="text-center text-gray-300 mb-6">Enter your name, pronouns, and a brief description to create your unique Player.</p>
+                
+                <!-- Input section for name and pronouns -->
+                <div class="flex flex-col items-center space-y-4 mb-6">
+                    <input type="text" id="startupNameInput" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" placeholder="Enter your Player name">
+                    <div class="w-full p-4 rounded-lg border-2 border-gray-700 bg-gray-900">
+                        <label for="pronounSelect" class="block text-center text-gray-300 mb-2">Select Your Pronouns</label>
+                        <select id="pronounSelect" class="w-full p-2 rounded-md bg-gray-800 text-white focus:outline-none focus:border-[#00FFD1]">
+                            <option value="he/him">He/Him</option>
+                            <option value="she/her">She/Her</option>
+                            <option value="they/them">They/Them</option>
                         </select>
-                        <select id="manualMissionFocus" class="w-full p-3 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] bg-gray-900 text-white">
-                            <option value="Energy 1">Energy 1</option>
-                            <option value="Energy 2">Energy 2</option>
-                            <option value="Energy 3">Energy 3</option>
-                            <option value="Energy 4">Energy 4</option>
-                            <option value="Energy 5">Energy 5</option>
-                           </select>
                     </div>
-                    <input type="number" id="manualMissionPoints" placeholder="Energy Points" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white">
-                    <button id="addManualMissionButton" class="w-full bg-[#00FFD1] text-black px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95">Add Task</button>
-                   </div>
+                </div>
+
+                <!-- Optional: Upload background image -->
+                <div class="w-full p-4 mb-4 rounded-lg border-2 border-gray-700 bg-gray-900 text-center">
+                    <p class="text-sm font-bold mb-2">Project a new reality. What does your world look like?</p>
+                    <label for="modalBackgroundUploadInput" class="bg-gray-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700 transition-all active:scale-95 shadow-md">
+                        <span class="text-base">Upload Image</span>
+                    </label>
+                    <input type="file" id="modalBackgroundUploadInput" class="hidden" accept="image/*">
+                </div>
+
+                <!-- Optional: Character description -->
+                <div class="w-full p-4 mb-4 rounded-lg border-2 border-gray-700 bg-gray-900 text-center">
+                    <p class="text-sm font-bold mb-2">Add a character description:</p>
+                    <textarea id="modalCharacterDescriptionTextarea" class="w-full p-2 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-800 text-white" rows="3" placeholder="Describe your character and their personality..."></textarea>
+                </div>
+                
+                <button id="submitNameButton" class="w-full bg-[#FF0055] text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Begin Your Journey</button>
             </div>
         </div>
-    </div>
 
-    <!-- Naming Modal -->
-    <div id="namingModal" class="modal">
-        <div class="modal-content text-white max-w-xl">
-            <h3 class="text-2xl font-bold mb-4 text-center theme-heading">Begin Your Journey</h3>
-            <p class="text-center text-gray-300 mb-6">Enter your name, pronouns, and a brief description to create your unique Player.</p>
-            
-            <!-- Input section for name and pronouns -->
-            <div class="flex flex-col items-center space-y-4 mb-6">
-                <input type="text" id="startupNameInput" class="w-full p-4 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-900 text-white" placeholder="Enter your Player name">
-                <div class="w-full p-4 rounded-lg border-2 border-gray-700 bg-gray-900">
-                    <label for="pronounSelect" class="block text-center text-gray-300 mb-2">Select Your Pronouns</label>
-                    <select id="pronounSelect" class="w-full p-2 rounded-md bg-gray-800 text-white focus:outline-none focus:border-[#00FFD1]">
-                        <option value="he/him">He/Him</option>
-                        <option value="she/her">She/Her</option>
-                        <option value="they/them">They/Them</option>
-                    </select>
+        <!-- Chronicle Modal - Now a dedicated modal -->
+        <div id="chronicleModal" class="modal">
+            <div class="modal-content text-white max-w-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold theme-heading">Your Chronicle</h3>
+                    <button id="closeChronicleModalButton" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
+                </div>
+                <div id="chronicleContent" class="space-y-6 overflow-y-auto max-h-[70vh]">
+                    <!-- The full chronicle will be displayed here -->
                 </div>
             </div>
-
-            <!-- Optional: Upload background image -->
-            <div class="w-full p-4 mb-4 rounded-lg border-2 border-gray-700 bg-gray-900 text-center">
-                <p class="text-sm font-bold mb-2">Project a new reality. What does your world look like?</p>
-                <label for="modalBackgroundUploadInput" class="bg-gray-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700 transition-all active:scale-95 shadow-md">
-                    <span class="text-base">Upload Image</span>
-                </label>
-                <input type="file" id="modalBackgroundUploadInput" class="hidden" accept="image/*">
-            </div>
-
-            <!-- Optional: Character description -->
-            <div class="w-full p-4 mb-4 rounded-lg border-2 border-gray-700 bg-gray-900 text-center">
-                <p class="text-sm font-bold mb-2">Add a character description:</p>
-                <textarea id="modalCharacterDescriptionTextarea" class="w-full p-2 rounded-lg border-2 border-gray-700 focus:outline-none focus:border-[#00FFD1] transition-colors bg-gray-800 text-white" rows="3" placeholder="Describe your character and their personality..."></textarea>
-            </div>
-            
-            <button id="submitNameButton" class="w-full bg-[#FF0055] text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-opacity-90 transition-all active:scale-95">Begin Your Journey</button>
         </div>
-    </div>
 
-    <!-- Chronicle Modal - Now a dedicated modal -->
-    <div id="chronicleModal" class="modal">
-        <div class="modal-content text-white max-w-xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold theme-heading">Your Chronicle</h3>
-                <button id="closeChronicleModalButton" class="text-gray-400 text-2xl hover:text-red-500">&times;</button>
-            </div>
-            <div id="chronicleContent" class="space-y-6 overflow-y-auto max-h-[70vh]">
-                <!-- The full chronicle will be displayed here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- New Logout/Save Modal -->
-    <div id="logoutModal" class="modal">
-        <div class="modal-content text-white max-w-md">
-            <h3 class="text-2xl font-bold mb-4 text-center theme-heading">Session & Save</h3>
-            <p id="lastSaveDisplay" class="text-sm text-gray-400 text-center mb-6">Last saved: Never</p>
-            <div class="flex space-x-4 justify-center">
-                <button id="forceSaveButton" class="bg-[#0077B6] text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                        <polyline points="17 21 17 13 7 13 7 21"/>
-                        <polyline points="7 3 7 8 15 8"/>
-                    </svg>
-                    <span>Force Save</span>
-                </button>
-                <button id="logoutButton" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" x2="9" y1="12" y2="12"/>
-                    </svg>
-                    <span>Sign Out</span>
-                </button>
+        <!-- New Logout/Save Modal -->
+        <div id="logoutModal" class="modal">
+            <div class="modal-content text-white max-w-md">
+                <h3 class="text-2xl font-bold mb-4 text-center theme-heading">Session & Save</h3>
+                <p id="lastSaveDisplay" class="text-sm text-gray-400 text-center mb-6">Last saved: Never</p>
+                <div class="flex space-x-4 justify-center">
+                    <button id="forceSaveButton" class="bg-[#0077B6] text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition-all active:scale-95 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        <span>Force Save</span>
+                    </button>
+                    <button id="logoutButton" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" x2="9" y1="12" y2="12"/>
+                        </svg>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1723,7 +1726,6 @@
                 characterIsSetup: characterIsSetup, // Save the new flag
                 currentArc: currentArc,
                 currentChapterInArc: currentChapterInArc,
-                lastSaveTime: new Date().getTime(), // Update save time on save
             };
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'gameData', 'state');
@@ -1905,6 +1907,7 @@
                 updateImageGeneratorStatus();
                 applyThemeIcons();
             }
+            document.getElementById('appContent').classList.remove('hidden');
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1915,9 +1918,6 @@
                 
                 // Primary authentication listener
                 onAuthStateChanged(auth, async (user) => {
-                    const mainContent = document.getElementById('mainContent');
-                    const welcomeScreen = document.getElementById('welcomeScreen');
-                    
                     if (user) {
                         userId = user.uid;
                         document.getElementById('userStatus').textContent = `User ID: ${userId}`;
@@ -1934,7 +1934,6 @@
                     }
                 });
 
-                // The following logic only runs once Firebase is initialized and the auth state is determined
                 if (initialAuthToken) {
                      try {
                         const userCredential = await signInWithCustomToken(auth, initialAuthToken);
@@ -1954,8 +1953,6 @@
                          document.getElementById('userStatus').textContent = 'Error logging in. Please refresh.';
                     }
                 }
-                
-
             } else {
                 document.getElementById('userStatus').textContent = 'Firebase is not configured.';
                 console.error('Firebase config is not provided. Cannot save or load data.');
