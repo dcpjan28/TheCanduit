@@ -1723,6 +1723,7 @@
                 characterIsSetup: characterIsSetup, // Save the new flag
                 currentArc: currentArc,
                 currentChapterInArc: currentChapterInArc,
+                lastSaveTime: new Date().getTime(), // Update save time on save
             };
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'gameData', 'state');
@@ -1912,42 +1913,48 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
                 
-                if (auth.currentUser) {
-                    userId = auth.currentUser.uid;
-                    await loadState();
-                } else {
-                    if (initialAuthToken) {
-                         try {
-                            const userCredential = await signInWithCustomToken(auth, initialAuthToken);
-                            userId = userCredential.user.uid;
-                            await loadState();
-                         } catch (e) {
-                            console.error("Error signing in with custom token:", e);
-                            document.getElementById('userStatus').textContent = 'Error logging in. Please refresh.';
-                         }
-                    } else {
-                        // User is anonymous
-                        try {
-                            const userCredential = await signInAnonymously(auth);
-                            userId = userCredential.user.uid;
-                            await loadState();
-                        } catch (e) {
-                             console.error("Error signing in anonymously:", e);
-                             document.getElementById('userStatus').textContent = 'Error logging in. Please refresh.';
+                // Primary authentication listener
+                onAuthStateChanged(auth, async (user) => {
+                    const mainContent = document.getElementById('mainContent');
+                    const welcomeScreen = document.getElementById('welcomeScreen');
+                    
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('userStatus').textContent = `User ID: ${userId}`;
+                        await loadState();
+
+                        if (!characterIsSetup) {
+                            if (welcomeScreen) welcomeScreen.style.display = 'flex';
+                        } else {
+                            if (welcomeScreen) welcomeScreen.style.display = 'none';
                         }
+                    } else {
+                        // User is signed out. Redirect to login page
+                        window.location.href = 'login.html';
+                    }
+                });
+
+                // The following logic only runs once Firebase is initialized and the auth state is determined
+                if (initialAuthToken) {
+                     try {
+                        const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                        userId = userCredential.user.uid;
+                        document.getElementById('userStatus').textContent = `User ID: ${userId}`;
+                     } catch (e) {
+                        console.error("Error signing in with custom token:", e);
+                        document.getElementById('userStatus').textContent = 'Error logging in. Please refresh.';
+                     }
+                } else {
+                    try {
+                        const userCredential = await signInAnonymously(auth);
+                        userId = userCredential.user.uid;
+                        document.getElementById('userStatus').textContent = 'Signed in anonymously.';
+                    } catch (e) {
+                         console.error("Error signing in anonymously:", e);
+                         document.getElementById('userStatus').textContent = 'Error logging in. Please refresh.';
                     }
                 }
                 
-                // Set up the listener after initial load
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                         userId = user.uid;
-                         loadState(); // Load or sync data for the new user
-                    } else {
-                         // User is signed out. Redirect to login page
-                         window.location.href = 'login.html';
-                    }
-                });
 
             } else {
                 document.getElementById('userStatus').textContent = 'Firebase is not configured.';
