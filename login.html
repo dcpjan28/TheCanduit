@@ -1,206 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Canduit Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --theme-font: 'Roboto Mono', monospace;
-            --theme-color: #00FFD1;
-        }
         body {
-            font-family: var(--theme-font);
-            color: #E0E0E0;
+            font-family: 'Share Tech Mono', monospace;
             background-color: #1a1a1a;
+            color: #E0E0E0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            margin: 0;
         }
-        .theme-heading {
-            font-family: var(--theme-font);
-            color: var(--theme-color);
-        }
-        .login-card {
+        .container {
             background-color: #2b2b2b;
             padding: 2.5rem;
             border-radius: 1rem;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 400px;
             width: 90%;
-            max-width: 450px;
-            text-align: center;
-            border: 2px solid var(--theme-color);
+            border: 2px solid #00FFD1;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #00FFD1;
+            color: #1a1a1a;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
         }
         .input-field {
             width: 100%;
             padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 2px solid #4a4a4a;
+            margin-top: 0.5rem;
+            border: 2px solid #6C757D;
             background-color: #1a1a1a;
             color: #E0E0E0;
-            margin-bottom: 1rem;
-            transition: border-color 0.3s;
-        }
-        .input-field:focus {
-            outline: none;
-            border-color: var(--theme-color);
-        }
-        .auth-button {
-            width: 100%;
-            padding: 0.75rem;
             border-radius: 0.5rem;
-            font-weight: bold;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .primary-button {
-            background-color: var(--theme-color);
-            color: black;
-            border: none;
-        }
-        .primary-button:hover {
-            opacity: 0.9;
-        }
-        .secondary-button {
-            background-color: #4a4a4a;
-            color: #E0E0E0;
-            border: none;
-        }
-        .secondary-button:hover {
-            background-color: #6a6a6a;
-        }
-        .toggle-text {
-            cursor: pointer;
-            color: var(--theme-color);
         }
     </style>
-    <!-- Firebase SDKs -->
+</head>
+<body class="antialiased">
+    <div class="container text-center">
+        <h1 class="text-4xl font-bold text-[#00FFD1] mb-6">THE CANDUIT</h1>
+        <p class="text-gray-400 mb-8">Establish your connection to the grid.</p>
+        
+        <div id="auth-container">
+            <!-- Login Form -->
+            <div id="login-form">
+                <h2 class="text-2xl font-bold mb-4">Log In</h2>
+                <input type="email" id="login-email" placeholder="Email" class="input-field mb-4">
+                <input type="password" id="login-password" placeholder="Password" class="input-field mb-6">
+                <button id="login-button" class="btn w-full mb-4">Log In</button>
+                <button id="show-signup" class="text-sm text-gray-400 hover:text-[#00FFD1] transition-colors">Don't have an account? Sign Up</button>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signup-form" class="hidden">
+                <h2 class="text-2xl font-bold mb-4">Sign Up</h2>
+                <input type="email" id="signup-email" placeholder="Email" class="input-field mb-4">
+                <input type="password" id="signup-password" placeholder="Password" class="input-field mb-6">
+                <button id="signup-button" class="btn w-full mb-4">Sign Up</button>
+                <button id="show-login" class="text-sm text-gray-400 hover:text-[#00FFD1] transition-colors">Already have an account? Log In</button>
+            </div>
+        </div>
+
+        <div id="loading-spinner" class="hidden mt-6">
+            <div class="loading-spinner mx-auto"></div>
+        </div>
+
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global variables provided by the canvas environment
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        let app;
-        let auth;
-        let db;
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        // Initialize Firebase
-        if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
-            try {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } catch (e) {
-                console.error("Firebase initialization error:", e);
-                document.getElementById('message').textContent = "Firebase initialization failed. Please check the configuration.";
-            }
-        } else {
-            document.getElementById('message').textContent = "Firebase is not configured. Please use the 'Edit' menu to configure it.";
-        }
+        // Provided Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcuO4WKBIlQngOscjlHgvdZ51zb97716M",
+            authDomain: "thecanduit.firebaseapp.com",
+            projectId: "thecanduit",
+            storageBucket: "thecanduit.firebasestorage.app",
+            messagingSenderId: "730071923902",
+            appId: "1:730071923902:web:7b76c0b1dacd01511772ef",
+            measurementId: "G-BDMTVG5SFN"
+        };
 
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const submitButton = document.getElementById('submitButton');
-        const toggleButton = document.getElementById('toggleAuthMode');
-        const formTitle = document.getElementById('formTitle');
-        const messageDisplay = document.getElementById('message');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         
-        let isLoginMode = true;
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        const signupEmail = document.getElementById('signup-email');
+        const signupPassword = document.getElementById('signup-password');
+        const loginButton = document.getElementById('login-button');
+        const signupButton = document.getElementById('signup-button');
+        const showLoginButton = document.getElementById('show-login');
+        const showSignupButton = document.getElementById('show-signup');
+        const loadingSpinner = document.getElementById('loading-spinner');
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in, redirect to the main app
-                window.location.href = `index.html`;
+                // If a user is already logged in, redirect them to the main app.
+                window.location.href = 'index.html';
             }
         });
 
-        const updateUI = () => {
-            formTitle.textContent = isLoginMode ? 'Log In' : 'Sign Up';
-            submitButton.textContent = isLoginMode ? 'Log In' : 'Sign Up';
-            toggleButton.textContent = isLoginMode ? 'Don\'t have an account? Sign Up' : 'Already have an account? Log In';
+        const showLoading = (show) => {
+            loadingSpinner.classList.toggle('hidden', !show);
+            loginButton.disabled = show;
+            signupButton.disabled = show;
         };
 
-        toggleButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            isLoginMode = !isLoginMode;
-            updateUI();
-        });
-
-        const showMessage = (message, isError = false) => {
-            messageDisplay.textContent = message;
-            messageDisplay.style.color = isError ? '#FF0055' : '#00FFD1';
-        };
-
-        submitButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            
-            if (!email || !password) {
-                showMessage('Please enter both email and password.', true);
-                return;
-            }
-
+        const handleLogin = async () => {
+            const email = loginEmail.value;
+            const password = loginPassword.value;
+            showLoading(true);
             try {
-                if (isLoginMode) {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                }
-                // The onAuthStateChanged listener will handle the redirect
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html';
             } catch (error) {
-                console.error(error);
-                let errorMessage;
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address format.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'This account has been disabled.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No user found with this email.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Incorrect password.';
-                        break;
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'This email is already in use.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'Password should be at least 6 characters.';
-                        break;
-                    default:
-                        errorMessage = 'An error occurred. Please try again.';
-                }
-                showMessage(errorMessage, true);
+                alert(`Login failed: ${error.message}`);
+                showLoading(false);
             }
+        };
+
+        const handleSignup = async () => {
+            const email = signupEmail.value;
+            const password = signupPassword.value;
+            showLoading(true);
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert(`Signup failed: ${error.message}`);
+                showLoading(false);
+            }
+        };
+
+        loginButton.addEventListener('click', handleLogin);
+        signupButton.addEventListener('click', handleSignup);
+
+        showSignupButton.addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
         });
 
-        updateUI();
+        showLoginButton.addEventListener('click', () => {
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
     </script>
-</head>
-<body>
-    <div class="login-card">
-        <h1 class="text-4xl sm:text-5xl font-bold mb-6 theme-heading" id="formTitle">Log In</h1>
-        <form>
-            <input type="email" id="email" placeholder="Email" class="input-field" required>
-            <input type="password" id="password" placeholder="Password" class="input-field" required>
-            <button id="submitButton" class="auth-button primary-button mb-4">Log In</button>
-            <p id="message" class="text-sm mt-2"></p>
-        </form>
-        <p class="text-sm">
-            <a href="#" id="toggleAuthMode" class="toggle-text">Don't have an account? Sign Up</a>
-        </p>
-    </div>
 </body>
 </html>
