@@ -968,7 +968,7 @@
         let retiredChronicles;
         let lastImageTime;
         let themeChosen;
-        let characterIsSetup; // New flag to track if character is set up
+        let characterIsSetup;
         let currentArc;
         let currentChapterInArc;
         let temporaryStorySegment = null;
@@ -979,6 +979,7 @@
         let showCompletedWeekly = false;
         let showCompletedMonthly = false;
         let lastSaveTime = null;
+        let tutorialIsComplete = false;
 
         // Global functions
         const showModal = (modalId) => {
@@ -1375,8 +1376,8 @@
             characterIsSetup = false;
             currentArc = 1;
             currentChapterInArc = 1;
+            tutorialIsComplete = false;
             saveState();
-            window.location.reload();
         };
 
         const generateOriginStory = async (charName) => {
@@ -1626,7 +1627,7 @@
                 
                 if (result.candidates && result.candidates[0] && result.candidates[0].content) {
                     const data = JSON.parse(result.candidates[0].content.parts[0].text);
-                    if (choiceButtonsContainer) originChoicesContainer.innerHTML = '';
+                    if (originChoicesContainer) originChoicesContainer.innerHTML = '';
                     data.choices.forEach(choice => {
                         const button = document.createElement('button');
                         button.className = 'choice-button bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-700 transition-all text-sm active:scale-95';
@@ -1807,6 +1808,7 @@
                 characterIsSetup: characterIsSetup, // Save the new flag
                 currentArc: currentArc,
                 currentChapterInArc: currentChapterInArc,
+                tutorialIsComplete: tutorialIsComplete,
             };
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'gameData', 'state');
@@ -1862,6 +1864,7 @@
                 currentArc = data.currentArc || 1;
                 currentChapterInArc = data.currentChapterInArc || 1;
                 lastSaveTime = data.lastSaveTime || null; // Load the last save time
+                tutorialIsComplete = data.tutorialIsComplete || false;
                 console.log("State loaded from Firestore.");
             } else {
                 console.log("No existing data found for this user. Initializing new state.");
@@ -1891,6 +1894,7 @@
                 currentArc = 1;
                 currentChapterInArc = 1;
                 lastSaveTime = null;
+                tutorialIsComplete = false;
             }
             initializeMainApp();
             updateLastSaveDisplay();
@@ -1928,6 +1932,7 @@
                     currentArc = data.currentArc || 1;
                     currentChapterInArc = data.currentChapterInArc || 1;
                     lastSaveTime = data.lastSaveTime || null; // Update save time
+                    tutorialIsComplete = data.tutorialIsComplete || false;
                     initializeMainApp();
                 }
             });
@@ -2077,8 +2082,7 @@
                     appContent.classList.add('hidden'); // Hide app content
                 }
             });
-
-            // The rest of the original script from index.html follows here
+        
             const messageOkButton = document.getElementById('messageOkButton');
             if(messageOkButton) {
                 messageOkButton.addEventListener('click', () => {
@@ -2348,6 +2352,7 @@
                         currentArc = 1;
                         currentChapterInArc = 1;
                         characterIsSetup = false;
+                        tutorialIsComplete = true; // Mark tutorial as complete after theme change
 
                         saveState();
                         hideModal('customizationModal');
