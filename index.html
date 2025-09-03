@@ -799,7 +799,15 @@
         
         // GLOBAL VARIABLES from the canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcuO4WKBIlQngOscjlHgvdZ51zb97716M",
+            authDomain: "thecanduit.firebaseapp.com",
+            projectId: "thecanduit",
+            storageBucket: "thecanduit.firebasestorage.app",
+            messagingSenderId: "730071923902",
+            appId: "1:730071923902:web:7b76c0b1dacd01511772ef",
+            measurementId: "G-BDMTVG5SFN"
+        };
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         const DAILY_RESET_HOUR = 2;
